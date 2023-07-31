@@ -1,0 +1,15 @@
+node_modules
+.DS_Store
+dist
+packages/bvm
+packages/runtime
+packages/sqlite-wasm-deepkit
+packages/tsx
+packages/cli
+packages/kitto
+packages/sdk
+
+
+
+
+

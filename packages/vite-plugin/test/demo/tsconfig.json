@@ -1,0 +1,30 @@
+{
+    "compilerOptions": {
+        "lib": [
+            "ESNext",
+            "DOM"
+        ],
+        "module": "esnext",
+        "target": "esnext",
+        "moduleResolution": "Bundler",
+        "experimentalDecorators": true,
+        "allowImportingTsExtensions": true,
+        "allowArbitraryExtensions": true,
+        "outDir": "dist",
+        "downlevelIteration": true,
+        "jsx": "preserve",
+        "declarationMap": true,
+        "declaration": true,
+        "skipLibCheck": true,
+        "allowSyntheticDefaultImports": true,
+        "forceConsistentCasingInFileNames": true,
+        "allowJs": true,
+        "noEmit": true,
+        "types": []
+    },
+    "reflection": false,
+    "include": [
+        "./auto-imports.d.ts",
+        "src"
+    ]
+}
