@@ -9,13 +9,11 @@ pnpm-workspace.yaml
 scrypt.index.json
 vite.config.ts
 packages/bvm
+auto-import.d.ts
+packages/vite-plugin/scrypt/scryptlib
 packages/runtime
 packages/vscode-ext/civet
 packages/sqlite-wasm-deepkit
-packages/tsx
-packages/kitto
-packages/sdk
-packages/config
 
 
 

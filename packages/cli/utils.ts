@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
+import process from 'node:process'
 import type { PackageJson } from 'pkg-types'
-
 import { definePackageJSON, defineTSConfig, findWorkspaceDir, writePackageJSON, writeTSConfig } from 'pkg-types'
 
 // @ts-expect-error asd
@@ -314,6 +314,8 @@ export async function updateWorkspaceFolder(p: WsFolder, ws: Workspace) {
     exports: {
       '.': './dist/mod.js',
       './*.js': './dist/*.js',
+      './package.json': './package.json',
+
     },
     dependencies: {
     },
@@ -349,7 +351,24 @@ export async function updateWorkspaceFolder(p: WsFolder, ws: Workspace) {
   ])
 }
 
-function createViteDefaultConfig(ws: Workspace) {
+export async function emitViteDevConfig() {
+  await fs.writeFile(`${process.cwd()}/vite.config.ts`, createViteDefaultDevConfig())
+}
+
+export function createViteDefaultDevConfig() {
+  return /* ts */ `import { defineConfig } from 'vite'
+
+import kittoPlugin from '@kitto/vite-plugin'
+// @ts-expect-error asd
+export default defineConfig({
+  plugins: [
+    kittoPlugin()
+  ]
+})
+  `
+}
+
+export function createViteDefaultConfig(ws?: Workspace) {
   const viteEntries = []
 
   ws.json.folders.forEach((a) => {
@@ -465,10 +484,10 @@ function createViteDefaultConfig(ws: Workspace) {
     'pkg-types',
   ]
   
-  import pp from "./packages/vite-plugin-civet/mod.ts"
+  import pluginKitto from "./packages/vite-plugin/mod.ts"
   export default defineConfig({
     plugins: [
-      pp()
+      pluginKitto()
     ],
     build: {
       lib: {
@@ -488,6 +507,9 @@ function createViteDefaultConfig(ws: Workspace) {
             return true
           if (a.includes('node_modules/.pnpm'))
             return true
+          if (a.startsWith("npm:")) {
+            return true
+          }
           return false
         },
         output: {

@@ -19,7 +19,8 @@ export default defineCommand({
     const watchCmd = args.watch ? ' -w' : ''
     await Promise.all([
       // exec(`tsc -b${watchCmd}`),
-      exec(`deno run -A npm:vite build${watchCmd}`),
+      exec(`./node_modules/.bin/vite build${watchCmd}`),
+      // exec(`deno run -A npm:vite build${watchCmd}`),
       exec(`tsc -b${watchCmd}`),
     ])
   },

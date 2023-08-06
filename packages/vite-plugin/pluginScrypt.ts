@@ -1,12 +1,16 @@
 import type { Plugin } from 'vite'
 import { createFilter } from '@rollup/pluginutils'
-import * as pp from './preprocess.ts'
-import { ScryptProgram } from './scryptProgram.ts'
+
+import * as pp from './scrypt/preprocess.ts'
+import { ScryptProgram } from './scrypt/scryptProgram.ts'
 
 export function pluginScrypt(): Plugin {
   let program: ScryptProgram
   let autoImport: any
-  const filter = createFilter('**/*.scrypt.ts')
+  const filter = createFilter([
+    '**/*.scrypt.ts',
+    '*.scrypt.ts',
+  ])
   return {
     name: 'kitto:scrypt',
     enforce: 'pre',
@@ -19,6 +23,7 @@ export function pluginScrypt(): Plugin {
     async transform(code, id) {
       if (!filter(id))
         return null
+
       code = await pp.transform(code, id)
       if (autoImport) {
         const r = await autoImport.transform(code, id)

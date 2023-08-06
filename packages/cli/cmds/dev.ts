@@ -1,9 +1,10 @@
 import { defineCommand } from 'citty'
+import { emitViteDevConfig, exec } from '../utils.ts'
 
 export default defineCommand({
   meta: {
     name: 'dev',
-    description: 'init new kitto project',
+    description: 'develop a kitto',
   },
   args: {
 
@@ -16,6 +17,11 @@ export default defineCommand({
 
   },
   async run({ args }) {
-    return 'asd'
+    // await updateProject()
+    await emitViteDevConfig()
+    await Promise.all([
+      exec('./node_modules/.bin/vite'),
+      // exec('deno run --import-map /Users/X/Documents/GitHub/kitto/import_map.json -A npm:vite'),
+    ])
   },
 })

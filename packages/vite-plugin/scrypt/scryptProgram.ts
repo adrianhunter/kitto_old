@@ -5,10 +5,12 @@ import path from 'node:path'
 import type { CustomTransformers } from 'typescript'
 import ts from 'typescript'
 import type { ResolvedConfig } from 'vite'
-import { Transpiler } from 'scrypt-ts-transpiler/dist/transpiler'
-import { IndexerWriter } from 'scrypt-ts-transpiler/dist/indexerWriter'
-import { compileContract } from 'scryptlib'
+import { Transpiler } from 'scrypt-ts-transpiler/dist/transpiler.js'
+import { IndexerWriter } from 'scrypt-ts-transpiler/dist/indexerWriter.js'
 import { tsquery } from '@phenomnomnominal/tsquery'
+
+// import { compileContract } from './compiler.ts'
+import { compileContract } from 'scryptlib'
 
 export class ScryptProgram {
   options: ts.CompilerOptions = {}
@@ -70,7 +72,7 @@ export class ScryptProgram {
           fss.readFileSync(fileName, 'utf8'),
         )
       },
-      //@ts-ignore
+      // @ts-expect-error asd
       getSourceFile(fileName: string) {
         if (fileCache.has(fileName)) {
           const file = fileCache.get(fileName)
@@ -206,8 +208,8 @@ class ScryptTranspiler implements ts.CustomTransformer {
       const structs = transpiler.transformTypeLiteralAndInterfaces()
       const result = imports.getCode() + structs.getCode() + contractAndLibs
       const tmpFile = createTemporaryFile(result)
-      const r = compileContract(tmpFile, { artifact: true })
 
+      const r = compileContract(tmpFile, { artifact: true })
       node = ts.visitEachChild(node, (node) => {
         if (ts.isClassDeclaration(node)) {
           node = this.ctx.factory.updateClassDeclaration(node, node.modifiers, node.name, node.typeParameters, node.heritageClauses, [
@@ -264,6 +266,7 @@ function createTemporaryFile(content: string) {
 
   try {
     fss.writeFileSync(tempFilePath, content)
+
     return tempFilePath
   }
   catch (err) {

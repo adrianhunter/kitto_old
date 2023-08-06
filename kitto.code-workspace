@@ -11,10 +11,16 @@
       "path": "packages/cli"
     },
     {
-      "path": "packages/bvm"
+      "path": "packages/testing"
+    },
+    {
+      "path": "packages/examples"
     },
     {
       "path": "packages/vscode-ext"
+    },
+    {
+      "path": "packages/bvm"
     },
     {
       "path": "packages/vite-plugin-civet"
@@ -24,15 +30,16 @@
     }
   ],
   "settings": {
+    "deno.enable": false,
+    "deno.importMap": "./import_map.json",
+    "deno.config": "./deno.jsonc",
     "files.exclude": {
-      "**/*.civet.tsx": true
-    },
-    "files.xxx": {
-      "dist": true,
+      // "dist": true,
+      "scrypt.index.json": true,
+      // "auto-imports.d.ts": true,
       "pnpm-lock.yaml": true,
       ".eslintrc": true,
       "packages": true,
-      "import_map.json": true,
       "node_modules": true,
       "tsconfig.json": true,
       "pnpm-workspace.yaml": true,

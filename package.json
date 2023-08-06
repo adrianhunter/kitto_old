@@ -6,13 +6,14 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "build": "vite build",
+
     "check": "tsc -b -w",
     "clean": "tsc -b --clean",
-    "dev": "tsup --watch"
+    "dev": "vite"
   },
-
   "dependencies": {
-    "@types/node": "^20.4.8"
+    "@types/node": "^20.4.8",
+    "scryptlib": "^2.1.23"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^0.40.0",
