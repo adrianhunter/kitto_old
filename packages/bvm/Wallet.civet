@@ -1,0 +1,25 @@
+{PrivKey} from "./PrivKey.civet"
+{Tx} from "./Tx.civet"
+
+
+class Wallet
+    @(
+        private privKey: PrivKey
+        public txs: Tx[] 
+    )
+    getPrivateKey()
+        @privKey
+    async getBalance()
+        123
+    async getAddress()
+        "asd"
+    async broadcast(tx: Tx)
+        "asd"
+    async sendMoney()
+        "asd"
+
+
+
+
+
+export {Wallet}

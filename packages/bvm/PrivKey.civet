@@ -1,0 +1,27 @@
+{ generatePrivateKey } from ./Gen.civet
+{ encodeWIF } from ./Encode.civet
+{ decodeWIF } from ./Decode.civet
+{ PubKey } from ./PubKey.civet
+
+export class PrivKey 
+  @(
+    public number: Uint8Array
+  )
+  @fromString(wif: string) new PrivKey (wif |> decodeWIF |> &.number)
+  @fromRandom() new PrivKey generatePrivateKey()
+  toString() @number |> encodeWIF
+  toPublicKey() @ |> PubKey.fromPrivKey
+  toAddress() @toPublicKey().toAddress()
+
+
+  //   @from(privateKey: { toString: () => any }): PrivKey {
+  //   if (privateKey <? PrivKey) return privateKey
+  //   if (typeof privateKey === "object" && privateKey) {
+  //     privateKey = privateKey.toString()
+  //   }
+  //   if (typeof privateKey === "string") {
+  //     return PrivKey.fromString(privateKey)
+  //   }
+  //   throw new Error("unsupported type")
+  // }
+

@@ -1,0 +1,107 @@
+
+{ sighash } from ./Hash.civet
+{ signEcdsa } from ./Crypto.civet
+{ encodeDER } from ./Encode.civet
+{ sighashAsync } from ./Hash.civet
+{ ecdsaSign } from ./Ecdsa.civet
+{ Tx } from ./Tx.civet
+{ verifyPrivateKey } from ./Verify.civet
+{ BufferWriter } from ./BufferWriter.civet
+{ writePushData } from ./Write.civet
+{ isBuffer } from ./Validate.civet
+{ ecdsaSignAsync } from ./Ecdsa.civet
+
+
+// {
+//   BN_SIZE,
+//   getMemoryBuffer,
+//   getSecp256k1Exports,
+//   PT_SIZE,
+//   readBN,
+//   writeBN,
+// } from ../wasm/wasm-secp256k1.civet
+{ sha256ripemd160 } from ./Hash.civet
+{ encodePubKey } from ./Encode.civet
+{ encodeHex } from ./Encode.civet
+{ sha256d } from ./Hash.civet
+
+SIGHASH_ALL := 0x01
+SIGHASH_FORKID := 0x40
+
+export generateTxSignature := (
+  tx: Tx
+  vin: number
+  parentScript: Uint8Array
+  parentSatoshis: number
+  privateKey: Uint8Array
+  publicKey: Point
+  sighashFlags: number = SIGHASH_ALL
+): Uint8Array =>
+  sighashFlags |= SIGHASH_FORKID
+  hash := sighash tx, vin, parentScript, parentSatoshis, sighashFlags
+  signature := ecdsaSign hash, privateKey, publicKey
+  dersig := signature |> encodeDER
+  new Uint8Array Array.from [...dersig, sighashFlags]
+
+export generateTxSignatureAsync := async (
+  tx: Tx
+  vin: any
+  parentScript: any
+  parentSatoshis: any
+  privateKey: any
+  publicKey: any
+  sighashFlags = SIGHASH_ALL
+) => 
+  sighashFlags |= SIGHASH_FORKID
+  hash := await sighashAsync(
+    tx
+    vin
+    parentScript
+    parentSatoshis
+    sighashFlags
+  )
+  signature := await ecdsaSignAsync hash, privateKey, publicKey
+  dersig := signature |> encodeDER
+  Array.from [...dersig, sighashFlags]
+
+export generateRandomData := (size: number) =>
+  new Uint8Array(size) |> window.crypto.getRandomValues
+export generatePrivateKey := => 
+  32 |> generateRandomData
+export const calculatePublicKeyHash = (publicKey: Point) ->
+  sha256ripemd160(encodePubKey(publicKey, true))
+export createP2PKHLockScript := (pubkeyhash: Uint8Array) =>
+  if (!isBuffer(pubkeyhash)) throw new Error("not a buffer")
+  buf := new Uint8Array 25
+  buf[0] = 118 // OP_DUP
+  buf[1] = 169 // OP_HASH160
+  buf[2] = 20 // OP_PUSH(20)
+  buf.set pubkeyhash, 3
+  buf[23] = 136 // OP_EQUALVERIFY
+  buf[24] = 172 // OP_CHECKSIG
+  buf
+export createP2PKHUnlockScript := (
+  signature: Uint8Array
+  pubkey: Uint8Array
+) =>
+  writer := new BufferWriter
+  writePushData writer, signature
+  writePushData writer, pubkey
+  writer.toBuffer()
+export calculatePublicKey := (privateKey: Buf) => 
+  // memory := getMemoryBuffer()
+  // privateKeyPos := memory.length - BN_SIZE
+  // publicKeyPos := privateKeyPos - PT_SIZE
+  // writeBN(memory, privateKeyPos, privateKey)
+  // //@ts-ignore
+  // getSecp256k1Exports().g_mul(publicKeyPos, privateKeyPos)
+  // //@ts-ignore
+  // x: readBN(memory, publicKeyPos)
+  // //@ts-ignore
+  // y: readBN(memory, publicKeyPos + BN_SIZE)
+  //TODO
+  return {} as unknown as Point
+export calculateTxid := (buffer: Buf) => 
+    buffer |> sha256d |> &.reverse() |> encodeHex
+export extractP2PKHLockScriptPubkeyhash := (script: Buf) =>
+  script.slice 3, 23

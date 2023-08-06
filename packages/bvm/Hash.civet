@@ -1,0 +1,258 @@
+
+{ BufferWriter } from ./BufferWriter.civet
+{ writeU32LE, writeU64LE, writeVarint } from ./Write.civet
+{ decodeHex } from ./Decode.civet
+{ asyncify } from ./asyncify.civet
+import type { Tx } from ./Tx.civet
+export SIGHASH_ALL := 0x01
+export SIGHASH_NONE := 0x02
+export SIGHASH_SINGLE := 0x03
+export SIGHASH_ANYONECANPAY := 0x80
+export SIGHASH_FORKID := 0x4
+
+export sha256Async := async (data: Iterable<number>) => 
+  new Uint8Array await crypto.subtle.digest("SHA-256", new Uint8Array(data))
+    
+
+export const ripemd160 = (data: string | any[] | ArrayLike<number>) => {
+ 
+  return []
+};
+
+// import * as xxx from "https://deno.land/std/_wasm_crypto/crypto.ts"
+
+// import { crypto } from "https://deno.land/std@0.173.0/crypto/mod.ts";
+
+
+
+// import { crypto } from "crypto";
+
+// export ripemd160Async := ripemd160 |> asyncify
+export ripemd160Async := async (data: Buf) =>
+  crypto.subtle.digest("RIPEMD-160", new Uint8Array(data))
+
+
+export const sha1 = (data: Iterable<number>) => {
+  return new Uint8Array(
+    //   await crypto.subtle.digest("SHA-1", new Uint8Array(data)),
+  );
+};
+export sha1Async = async (data: Iterable<number>) => 
+  new Uint8Array await crypto.subtle.digest "SHA-1", new Uint8Array(data)
+
+
+
+
+export sha256 := (data: Buf) => {
+    return new Uint8Array([])
+}
+
+
+export sha256d := (data: Buf): Uint8Array => {
+  return sha256(data)
+}
+
+
+export sha256ripemd160 := (data: Buf) =>
+  data |> sha256 |> ripemd160
+
+export sighashAsync := async (
+  tx: Tx,
+  vin: number,
+  parentScript:  Buf,
+  parentSatoshis: number,
+  sighashFlags: number,
+) => 
+  (preimageAsync tx, vin, parentScript, parentSatoshis, sighashFlags)
+  |> await
+  |> sha256Async
+  |> await
+
+
+
+
+export sighash := (
+  tx: Tx,
+  vin: number,
+  parentScript:  Buf,
+  parentSatoshis: number,
+  sighashFlags: number,
+) => 
+  (preimage tx, vin, parentScript, parentSatoshis, sighashFlags)
+  |> sha256d
+
+
+
+export preimageAsync := async (
+  tx: Tx
+  vin: number
+  parentScript: Buf
+  parentSatoshis: number
+  sighashFlags: number
+) =>
+  preimage tx, vin, parentScript, parentSatoshis, sighashFlags
+
+
+export preimage := (
+  tx:  Tx
+  vin: number
+  parentScript: Buf
+  parentSatoshis: number
+  sighashFlags: number
+) => 
+  {outputs} := tx
+  input := tx.inputs[vin]
+  SIGHASH_NONE := 0x02
+  SIGHASH_SINGLE := 0x03
+  SIGHASH_ANYONECANPAY := 0x80
+
+  getPrevoutsHash := =>
+    if tx._hashPrevouts return tx._hashPrevouts;
+    writer := new BufferWriter
+    tx.inputs.forEach (input: { txid: string; vout: number }) => 
+      writer.write decodeHex(input.txid).reverse()
+      writeU32LE writer, input.vout    
+    tx._hashPrevouts = writer.toBuffer() |> sha256d
+    tx._hashPrevouts
+
+  getSequenceHash := => 
+    if tx._hashSequence return tx._hashSequence;
+    writer := new BufferWriter
+    tx.inputs.forEach (input: { sequence: number }) => 
+      writeU32LE(
+        writer,
+        typeof input.sequence === "undefined" ? 0xFFFFFFFF : input.sequence,
+      )
+    tx._hashSequence = writer.toBuffer() |> sha256d
+    tx._hashSequence
+  
+
+  getAllOutputsHash := =>
+    if tx._hashOutputsAll return tx._hashOutputsAll;
+    writer := new BufferWriter
+    outputs.forEach (output) => 
+        writeU64LE writer, output.satoshis
+        writeVarint writer, output.script.length
+        output.script |> writer.write       
+    tx._hashOutputsAll = writer.toBuffer() |> sha256d
+    tx._hashOutputsAll
+
+  getOutputHash := (n: number) =>
+    output := outputs[n]
+    writer := new BufferWriter
+    writeU64LE writer, output.satoshis
+    writeVarint writer, output.script.length
+    writer.write output.script
+    writer.toBuffer() |> sha256d
+
+  hashPrevouts .= new Uint8Array 32
+  hashSequence .= new Uint8Array 32
+  hashOutputs .= new Uint8Array 32
+
+  if (!(sighashFlags & SIGHASH_ANYONECANPAY)) {
+    hashPrevouts = getPrevoutsHash();
+  }
+
+  if (
+    !(sighashFlags & SIGHASH_ANYONECANPAY) &&
+    (sighashFlags & 0x1F) !== SIGHASH_SINGLE &&
+    (sighashFlags & 0x1F) !== SIGHASH_NONE
+  ) {
+    hashSequence = getSequenceHash();
+  }
+
+  if (
+    (sighashFlags & 0x1F) !== SIGHASH_SINGLE &&
+    (sighashFlags & 0x1F) !== SIGHASH_NONE
+  ) {
+    hashOutputs = getAllOutputsHash()
+  } else if ((sighashFlags & 0x1F) === SIGHASH_SINGLE && vin < outputs.length) {
+    hashOutputs = getOutputHash(vin)
+  }
+
+  getPreimage := (
+    hashPrevouts: Uint8Array | Uint8Array,
+    hashSequence: Uint8Array | Uint8Array,
+    hashOutputs: Uint8Array | Uint8Array,
+  ) =>
+    writer := new BufferWriter
+    writeU32LE writer, typeof tx.version === "undefined" ? 1 : tx.version
+    writer.write hashPrevouts
+    writer.write hashSequence
+    writer.write decodeHex(input.txid).reverse()
+    writeU32LE writer, input.vout
+    writeVarint writer, parentScript.length
+    writer.write parentScript
+    writeU64LE writer, parentSatoshis
+    writeU32LE(
+      writer
+      typeof input.sequence === "undefined" ? 0xFFFFFFFF : input.sequence
+    )
+    writer.write hashOutputs
+    writeU32LE writer, tx.locktime or 0
+    writeU32LE writer, sighashFlags >>> 0
+    writer.toBuffer()
+  
+
+  getPreimage hashPrevouts, hashSequence, hashOutputs
+
+
+//@ts-ignore
+// import * as bsv from "bsv"
+
+
+describe 'Hash sh256Async', => 
+  it 'empty', async => 
+    data: any := []
+    expected := Array.from(bsv.crypto.Hash.sha256(bsv.deps.Buffer.from(data)))
+    actual := Array.from(await sha256Async(data))
+    assert.equal actual, expected
+
+describe 'Hash ripemd160Async', ->
+  it 'empty', async =>
+    data: any := [1]
+
+    // console.log await ripemd160Async(data) |> Array.from
+    // expected := Array.from(bsv.crypto.Hash.ripemd160(bsv.deps.Buffer.from(data)))
+    // actual := Array.from(await ripemd160Async(data))
+    // assert.equal actual, expected
+
+
+describe 'Hash sha-1 Async', ->
+  it 'empty', async  =>
+    data: Buf := []
+    expected := Array.from(bsv.crypto.Hash.sha1(bsv.deps.Buffer.from(data)))
+    actual := Array.from(await sha1Async(data))
+    assert.equal actual, expected
+
+
+
+// const { SIGHASH_ALL, SIGHASH_FORKID } = nimble.constants.sighashFlags
+// const bsv = require('bsv')
+
+{decodeTx} from ./Decode.civet
+
+describe 'Hash sighash', => 
+  it 'async', async =>
+    utxo1 := {
+      txid: '0000000000000000000000000000000000000000000000000000000000000000',
+      vout: 0,
+      script: '00',
+      satoshis: 1000
+    }
+    utxo2 := {
+      txid: '1111111111111111111111111111111111111111111111111111111111111111',
+      vout: 1,
+      script: '01',
+      satoshis: 2000
+    }
+    addr := new bsv.PrivateKey().toAddress()
+    bsvtx := new bsv.Transaction().from(utxo1).from(utxo2).to(addr, 4000)
+    bsvSighash := bsv.Transaction.Sighash.sighash(bsvtx,
+      bsv.crypto.Signature.SIGHASH_ALL | bsv.crypto.Signature.SIGHASH_FORKID,
+      1, new bsv.Script('01'), new bsv.deps.bnjs.BN(2000)).reverse()
+    tx := decodeTx(decodeHex(bsvtx.toString()))
+    runSighash := await sighashAsync(tx, 1, [0x01], 2000, SIGHASH_ALL | SIGHASH_FORKID)
+    // console.log (new Uint8Array bsvSighash.buffer), runSighash
+
+    

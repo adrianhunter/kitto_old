@@ -1,0 +1,65 @@
+export areBuffersEqual := (a: string | any[], b: string | any[]) => {
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false
+  }
+  return true
+}
+export isBuffer := (a: unknown) => 
+  // This covers both Uint8Array and Buffer instances
+  if a <? Uint8Array return true
+  // Check if a standard array, which is slower than the above checks
+  Array.isArray(a) and !a.some (x) => !Number.isInteger(x) or x < 0 or x > 255
+
+
+HEX_REGEX := /^(?:[a-fA-F0-9][a-fA-F0-9])*$/
+
+export isHex := (s: string) =>
+  s |> HEX_REGEX.test
+
+export isP2PKHLockScript := (script: Uint8Array) =>
+  script.length is 25 and
+    script[0] is 118 and
+    script[1] is 169 and
+    script[2] is 20 and
+    script[23] is 136 and
+    script[24] is 172
+
+
+
+
+// import { describe,it } from "mocha";
+// import { expect } from "chai";
+// import nimble from "../env/nimble";
+// const { areBuffersEqual } = nimble.functions;
+
+// Deno.test("areBuffersEqual", async () => {
+//   // const x = await import("+test");
+
+//   // it("retunrs true if same", () => {
+//   //   expect(areBuffersEqual([], [])).to.equal(true);
+//   //   expect(areBuffersEqual(Buffer.from([]), Buffer.from([]))).to.equal(true);
+//   //   expect(areBuffersEqual(new Uint8Array([]), new Uint8Array([]))).to.equal(
+//   //     true,
+//   //   );
+//   //   expect(areBuffersEqual([1, 2, 3], [1, 2, 3])).to.equal(true);
+//   //   expect(areBuffersEqual(Buffer.from([1, 2, 3]), Buffer.from([1, 2, 3]))).to
+//   //     .equal(true);
+//   //   expect(
+//   //     areBuffersEqual(new Uint8Array([1, 2, 3]), new Uint8Array([1, 2, 3])),
+//   //   ).to.equal(true);
+//   //   expect(areBuffersEqual([], Buffer.from([]))).to.equal(true);
+//   //   expect(areBuffersEqual(Buffer.from([]), new Uint8Array([]))).to.equal(true);
+//   // });
+
+//   // it("returns false for different lengths", () => {
+//   //   expect(areBuffersEqual([], [1])).to.equal(false);
+//   //   expect(areBuffersEqual([1], [])).to.equal(false);
+//   //   expect(areBuffersEqual([1], [1, 2])).to.equal(false);
+//   // });
+
+//   // it("returns false for different values", () => {
+//   //   expect(areBuffersEqual([1], [21])).to.equal(false);
+//   //   expect(areBuffersEqual([1, 2, 3], [1, 2, 4])).to.equal(false);
+//   // });
+// });

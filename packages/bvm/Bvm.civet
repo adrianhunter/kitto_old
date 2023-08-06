@@ -1,0 +1,619 @@
+
+{ encodeHex } from ./Encode.civet
+{ decodeHex, decodePublicKey, decodeScriptChunks } from ./Decode.civet
+{ verifyTxSignature,verifyTxSignatureAsync } from ./Verify.civet
+{ ripemd160Async, sha1Async, sha256Async } from ./Hash.civet
+{ areBuffersEqual } from ./Validate.civet
+{ Op } from ./Op
+
+interface Opts
+  trace: boolean
+interface Result
+  success: true
+  error: null | unknown
+  stackTrace: any[]
+interface Num
+  num: bigint
+  neg: boolean
+defaults: Opts := 
+  trace: true
+export run := (
+  a: readonly number[]
+  b: readonly number[]
+  tx?: any
+  vin?: any
+  parentSatoshis?: any
+  opts: any = {}
+): Promise<Result> -> 
+  evalScript (new Uint8Array a), (new Uint8Array b), tx, vin, parentSatoshis, opts
+
+export evalScript := (
+  unlockScript: Buf
+  lockScript: Buf
+  tx?: any
+  vin?: any
+  parentSatoshis?: any
+  opts?: Opts 
+): Promise<Result> -> 
+  { trace } := {
+    ...defaults
+  }
+
+  chunks: any[] := []
+  stack: any[] := []
+  push := (...args: any[]) => stack.push ...args
+  altStack: any[] := []
+  branchExec: any[] := []
+  stackTrace: (any[] | { opcode: any; exec: boolean })[][] := []
+  checkIndex .= 0
+  done .= false
+
+  traceStack := (i: number, exec = true) ->
+    if trace and i >= 0
+      { opcode } := chunks[i]
+      stackTrace.push([{ opcode, exec }, [...stack], [...altStack]])
+
+  finish := (error: null | unknown = null) ->
+    if stackTrace.length 
+      traceStack stackTrace.length
+    if !error and branchExec.length
+      error = new Error "ENDIF missing"
+    success := !error and !!stack.length and stack[stack.length - 1].some (x: any) => x
+    if !error and !success 
+      error = new Error "top of stack is false"
+    {
+      success
+      error
+      chunks
+      stack
+      stackTrace
+    }
+
+  try
+    unlockChunks := decodeScriptChunks(unlockScript)
+    lockChunks := decodeScriptChunks(lockScript)
+
+    if unlockChunks.some((x) => x.opcode && x.opcode > 96)
+      throw new Error("non-push data in unlock script")
+    chunks.push ...unlockChunks
+    chunks.push ...lockChunks
+
+    pop := () => 
+      if !stack.length 
+        throw new Error "stack empty"
+      stack.pop()
+
+    altpop := () => 
+      if !altStack.length
+        throw new Error "alt stack empty"
+      altStack.pop()
+
+    popBool := () => pop().some (x: any) => x
+    encodeNum := (num: any, neg?: boolean) => {
+      if (typeof num === 'object') { 
+        neg = num.neg 
+        num = num.num 
+      }
+      if (BigInt(num) === BigInt(0)) return []
+      const arr = Array.from(decodeHex(BigInt(num).toString(16))).reverse()
+      const full = arr[arr.length - 1] & 0x80
+      if (full) arr.push(0x00)
+      if (neg) arr[arr.length - 1] |= 0x80
+      return arr
+    }
+
+    decodeNum := (arr: any) => {
+      if (!arr.length) return { num: BigInt(0), neg: false }
+      const neg = !!(arr[arr.length - 1] & 0x80)
+      arr[arr.length - 1] &= 0x7F
+      //@ts-ignore
+      const num = BigInt(`0x${encodeHex(Array.from(arr).reverse())}`)
+      return { num, neg }
+    }
+    addNum := (a: Num, b: Num) -> 
+      if a.neg === b.neg 
+        return { num: a.num + b.num, neg: a.neg }
+      else
+        return a.num > b.num
+          ? ({ num: a.num - b.num, neg: a.neg })
+          : ({ num: b.num - a.num, neg: b.neg })
+
+    subNum := (
+      b: Num
+      a: Num
+    ) -> addNum(a, { num: b.num, neg: !b.neg })
+
+    lessThan := (b: Num, a: Num) ->
+      a.neg !== b.neg
+        ? a.neg
+        : (a.neg && a.num > b.num) || (!a.neg && a.num < b.num)
+
+    greaterThan := (
+      b: Num
+      a: Num
+    ) ->
+      if a.neg is not b.neg
+        !a.neg
+      else
+        (a.neg and a.num < b.num) or (!a.neg and a.num > b.num)
+
+    lessThanOrEqual := (
+      b: Num
+      a: Num
+    ) ->
+      a.neg !== b.neg
+        ? a.neg
+        : (a.neg && a.num >= b.num) || (!a.neg && a.num <= b.num)
+
+    greaterThanOrEqual := (
+      b: Num
+      a: Num
+    ) ->
+      a.neg !== b.neg
+        ? !a.neg
+        : (a.neg && a.num <= b.num) || (!a.neg && a.num >= b.num)
+
+    i .= 0
+
+    step := async ->
+      // Skip branch
+      if branchExec.length > 0 and !branchExec[branchExec.length - 1]
+        sub .= 0 // sub branch
+        psub .= 0 // previous sub
+        loop
+          break if i >= chunks.length
+          opcode := chunks[i].opcode
+          prevOp := chunks[i - 1].opcode
+          // Because we trace the previous chunk, this funky code works out if
+          // it is an opcode that is executed or not
+          executed := (prevOp is Op.if and sub is 0) 
+            or ([Op.else, Op.endif].includes(prevOp) and psub is 0)
+          traceStack i - 1, executed
+          psub = sub
+          if opcode is Op.if or opcode is Op.NOTIF
+            sub++
+          else if opcode is Op.endif
+            break if sub === 0
+            sub--
+          else if opcode is Op.else
+            break if !sub
+          i++
+        if i >= chunks.length 
+          done = true
+          return
+      else
+        traceStack i - 1
+      chunk := chunks[i++]
+      checkSig := async () ->
+        pubkeybytes := pop()
+        pubkey := decodePublicKey(pubkeybytes)
+        signature := pop()
+        cleanedScript := lockScript.slice(checkIndex)
+        check := (verified: any) => 
+          if chunk.opcode is Op.checkSig
+            stack.push encodeNum(verified ? 1 : 0)
+          else 
+            if !verified
+              throw new Error "OP_CHECKSIGVERIFY failed"
+        return await verifyTxSignatureAsync(
+            tx
+            vin
+            signature
+            pubkey
+            cleanedScript
+            parentSatoshis
+          ).then(check)
+
+      if chunk.buf 
+        stack.push chunk.buf
+        return
+      op := chunk.opcode
+      if op >= 81 and op <= 96 
+        [op - 80] |> push
+        return
+      switch op 
+        when Op.negate1 then [0x81] |> push
+        when Op._0 then [] |> push
+        when Op.nop then break
+        when Op.if  then popBool() |> branchExec.push
+        when Op.NOTIF then branchExec.push(!popBool())
+        when Op.else
+          if !branchExec.length 
+            throw new Error "ELSE found without matching IF"
+          branchExec[branchExec.length - 1] = !branchExec[branchExec.length - 1]
+        when Op.endif
+          if !branchExec.length
+            throw new Error("ENDIF found without matching IF")
+          branchExec.pop()
+        when Op.verify 
+          if !popBool() 
+            throw new Error "OP_VERIFY failed"
+        when Op.return then done = true
+        when Op.toAltstack then pop() |> altStack.push
+        when Op.fromAltstack then altpop() |> push
+        when Op.ifDup
+          v := pop()
+          stack.push v
+          if v.some (x: any) => x
+            stack.push Array.from(v)
+        when Op.depth then stack.length |> BigInt |> encodeNum |> push
+        when Op.drop then pop()
+        when Op.dup
+          v := pop()
+          stack.push(v)
+          stack.push(Array.from(v))
+        when Op.nip
+          x2 := pop()
+          pop()
+          stack.push x2
+        when Op.over
+          x2 := pop()
+          x1 := pop()
+          stack.push x1, x2, x1
+        when Op.pick
+          n := decodeNum(pop())
+          if n.neg or n.num >= stack.length
+            throw new Error "OP_PICK failed, out of range"
+          stack.push Array.from(stack[stack.length - Number(n.num) - 1])
+        when Op.roll
+          n := decodeNum(pop())
+          if n.neg or Number(n.num) >= stack.length
+            throw new Error "OP_ROLL failed, out of range"
+          stack.push stack.splice(stack.length - Number(n.num) - 1, 1)[0]
+        when Op.rot
+          x3 := pop()
+          x2 := pop()
+          x1 := pop()
+          push x2, x3, x1
+        when Op.swap
+          x2 := pop()
+          x1 := pop()
+          push x2, x1
+        when Op.tuck
+          x2 := pop()
+          x1 := pop()
+          push x2, x1, x2
+        when Op.drop2 
+          pop()
+          pop()
+        when Op.dup2
+          x2 := pop()
+          x1 := pop()
+          stack.push x1, x2, x1, x2
+        when Op.dup3
+          x3 := pop()
+          x2 := pop()
+          x1 := pop()
+          stack.push x1, x2, x3, x1, x2, x3
+        when Op.over2
+          x4 := pop()
+          x3 := pop()
+          x2 := pop()
+          x1 := pop()
+          stack.push x1, x2, x3, x4, x1, x2
+        when Op.rot2
+          x6 := pop()
+          x5 := pop()
+          x4 := pop()
+          x3 := pop()
+          x2 := pop()
+          x1 := pop()
+          stack.push x3, x4, x5, x6, x1, x2
+        when Op.swap2
+          x4 := pop()
+          x3 := pop()
+          x2 := pop()
+          x1 := pop()
+          stack.push x3, x4, x1, x2
+        when Op.cat
+          x2 := pop()
+          x1 := pop()
+          stack.push Array.from([...x1, ...x2])
+        when Op.split
+          n := decodeNum pop()
+          x := pop()
+          if n.neg or Number(n.num) > x.length
+            throw new Error "OP_SPLIT failed, out of range"
+          stack.push x.slice(0, Number(n.num)), x.slice(Number(n.num))
+        when Op.size
+          x := pop()
+          stack.push x
+          stack.push encodeNum(x.length)
+        when Op.invert 
+          r := pop().map (ai: number) => ai ^ 0xFF
+          push r
+        when Op.and
+          a := pop()
+          b := pop()
+          if a.length !== b.length 
+            throw new Error "OP_AND failed, different sizes"
+          stack.push a.map((ai: number, i: string | number) => ai & b[i])
+        when Op.or
+          a := pop()
+          b := pop()
+          if a.length !== b.length
+            throw new Error "OP_OR failed, different sizes"
+          stack.push a.map((ai: number, i: string | number) => ai | b[i])
+        when Op.xor
+          a := pop()
+          b := pop()
+          if a.length !== b.length
+            throw new Error "OP_XOR failed, different sizes"
+          stack.push a.map((ai: number, i: string | number) => ai ^ b[i])
+        when Op.equal
+          a := pop()
+          b := pop()
+          equal := areBuffersEqual a, b
+          r := encodeNum(equal ? 1 : 0)
+          stack.push r
+        when Op.equalVerify
+          a := pop()
+          b := pop()
+          equal := a.length is b.length and
+            !a.some((ai: any, i: string | number) => ai is not b[i])
+          if !equal
+            throw new Error "'OP_EQUALVERIFY failed\""
+        when Op.lshift
+          n := decodeNum(pop())
+          if n.neg
+            throw new Error "OP_LSHIFT failed, n negative"
+          stack.push(lshift(pop(), Number(n.num)))
+        when Op.RSHIFT
+          n := decodeNum(pop())
+          if n.neg
+            throw new Error "OP_RSHIFT failed, n negative"
+          stack.push(rshift(pop(), Number(n.num)))
+        when Op.add1 
+          addNum(decodeNum(pop()), { num: BigInt(1), neg: false })
+          |> encodeNum
+          |> push
+        when Op.sub1 then push encodeNum addNum decodeNum(pop()), (num: BigInt(1), neg: true)
+        when Op.negate then pop()
+          |> decodeNum
+          |> (x) => encodeNum(num: x.num, neg: !x.neg)
+          |> push
+        when Op.abs 
+          a := pop()
+          n := decodeNum(a)
+          r := encodeNum(n.num)
+          push r
+        when Op.not 
+          wow := decodeNum pop()
+          r := wow.num is BigInt(0) ? encodeNum(1) : encodeNum(0)
+          push r
+        when Op.notequal0 
+          wow := decodeNum pop()
+          push wow.num is BigInt(0) ? encodeNum(0) : encodeNum(1)
+        when Op.add 
+          a := pop() |> decodeNum
+          b := pop() |> decodeNum
+          push(encodeNum addNum(a ,b))
+        when Op.sub then stack.push(encodeNum(subNum(decodeNum(pop()), decodeNum(pop()))))
+        when Op.mul
+          b := decodeNum(pop())
+          a := decodeNum(pop())
+          stack.push(encodeNum(a.num * b.num, a.neg !== b.neg))
+        when Op.div
+          b := decodeNum(pop())
+          a := decodeNum(pop())
+          if (b.num === BigInt(0)) {
+            throw new Error("OP_DIV failed, divide by 0")
+          }
+          stack.push(encodeNum(a.num / b.num, a.neg !== b.neg))
+        when Op.mod
+          b := decodeNum(pop())
+          a := decodeNum(pop())
+          if b.num is BigInt(0)
+            throw new Error("OP_DIV failed, divide by 0")
+          r := encodeNum(a.num % b.num, a.neg)
+          stack.push r
+        when Op.BOOLAND
+          a := popBool()
+          b := popBool()
+          stack.push encodeNum(a && b ? 1 : 0)
+        when Op.BOOLOR
+          a := popBool()
+          b := popBool()
+          stack.push encodeNum(a || b ? 1 : 0)
+        when Op.NUMEQUAL
+          b := decodeNum(pop())
+          a := decodeNum(pop())
+          r := encodeNum(a.num === b.num && a.neg === b.neg ? 1 : 0)
+          stack.push r
+        when Op.NUMEQUALVERIFY
+          b := decodeNum(pop())
+          a := decodeNum(pop())
+          if a.num is not b.num or a.neg is not b.neg
+            throw new Error "OP_NUMEQUALVERIFY failed"
+        when Op.NUMNOTEQUAL
+          b := decodeNum(pop())
+          a := decodeNum(pop())
+          stack.push encodeNum(a.num !== b.num || a.neg !== b.neg ? 1 : 0)
+        when Op.LESSTHAN
+          stack.push(
+            encodeNum(lessThan(decodeNum(pop()), decodeNum(pop())) ? 1 : 0),
+          )
+        when Op.GREATERTHAN
+          a := decodeNum(pop())
+          b := decodeNum(pop())
+          stack.push(
+            encodeNum(greaterThan(a,b) ? 1 : 0),
+          )
+        when Op.LESSTHANOREQUAL then stack.push(
+            encodeNum(
+              lessThanOrEqual(decodeNum(pop()), decodeNum(pop())) ? 1 : 0,
+            )
+          )
+        when Op.GREATERTHANOREQUAL then stack.push(
+            encodeNum(
+              greaterThanOrEqual(decodeNum(pop()), decodeNum(pop())) ? 1 : 0,
+            )
+          )
+        when Op.MIN
+          b := decodeNum(pop())
+          a := decodeNum(pop())
+          stack.push encodeNum(lessThan(b, a) ? a : b)
+        when Op.MAX
+          b := decodeNum(pop())
+          a := decodeNum(pop())
+          stack.push encodeNum(greaterThan(b, a) ? a : b)
+        when Op.WITHIN
+          max := decodeNum(pop())
+          min := decodeNum(pop())
+          x := decodeNum(pop())
+          stack.push(
+            encodeNum(greaterThanOrEqual(min, x) && lessThan(max, x) ? 1 : 0),
+          )
+        when Op.BIN2NUM then stack.push(encodeNum(decodeNum(pop())))
+        when Op.NUM2BIN
+          m := decodeNum(pop())
+          narr := pop()
+          n := decodeNum(narr)
+          oor := m.neg 
+            or m.num < BigInt(1)
+            or m.num < BigInt(narr.length) 
+            or m.num > BigInt(2147483647)
+          if oor
+            throw new Error "OP_NUM2BIN failed, out of range"
+          arr := Array.from(decodeHex(BigInt(n.num).toString(16)))
+          for (let i = arr.length; i < Number(m.num); i++)
+             arr.push(0x00)
+          full := arr[arr.length - 1] & 0x80
+          if full
+            arr.push(0x00)
+          if n.neg
+            arr[arr.length - 1] |= n.neg ? 0x80 : 0x00
+          stack.push(arr)
+        when Op.RIPEMD160 then ripemd160Async(pop()).then((x) => stack.push(x))
+        when Op.sha1 then sha1Async(pop()).then((x) => stack.push(x))
+        when Op.sha256 then sha256Async(pop()).then((x) => stack.push(x))
+        when Op.hash160 then sha256Async(pop()).then((x) => ripemd160Async(x)).then((x) =>
+              stack.push(x)
+            )
+        when Op.hash256 then sha256Async(pop()).then((x) => sha256Async(x)).then((x) =>
+              stack.push(x)
+            )
+        when Op.CODESEPARATOR then checkIndex = i + 1
+        when Op.checkSig 
+          checkSig() |> await
+        when Op.CHECKSIGVERIFY 
+          checkSig() |> await
+        when Op.CHECKMULTISIG
+        when Op.CHECKMULTISIGVERIFY
+          total := decodeNum(pop())
+          if total.neg
+            throw new Error "OP_CHECKMULTISIG failed, out of range"
+          keys := []
+          for (let i = 0; i < Number(total.num); i++)
+            pubkey := decodePublicKey(pop())
+            keys.push pubkey
+          
+          // Pop the sigs
+          required := decodeNum(pop())
+          if required.neg or required.num > total.num
+            throw new Error "OP_CHECKMULTISIG failed, out of range"
+          sigs := []
+          for (let i = 0; i < Number(required.num); i++) 
+            sigs.push pop()
+          // Pop one more off. This isn't used and can't be changed.
+          pop()
+          // Verify the sigs
+          key .= 0
+          sig .= 0
+          success .= true
+          cleanedScript := lockScript.slice checkIndex
+          check := (success: boolean) =>
+            if chunk.opcode is Op.checkMultiSig
+              stack.push encodeNum(success ? 1 : 0)
+            else
+              if !success
+                throw new Error "OP_CHECKMULTISIGVERIFY failed"
+          loop
+            break if sig < sigs.length
+            if key is keys.length
+              success = false
+              break
+            verified := await verifyTxSignatureAsync(
+              tx,
+              vin,
+              sigs[sig],
+              keys[key],
+              cleanedScript,
+              parentSatoshis,
+            )
+            if verified 
+              sig++
+            key++
+          success |> check
+        when Op.NOP1 then break
+        when Op.NOP2 then break
+        when Op.NOP3 then break
+        when Op.NOP4 then break
+        when Op.NOP5 then break
+        when Op.NOP6 then break
+        when Op.NOP7 then break
+        when Op.NOP8 then break
+        when Op.NOP9 then break
+        when Op.NOP10 then break
+        else 
+          throw new Error `reserved opcode: ${chunk}`
+    return (async () => {
+      try {
+        while (i < chunks.length && !done)
+          // console.log i, done, chunks
+          await step()
+        return finish()
+      } catch (e) {
+        vm := finish(e)
+        return Promise.resolve(vm)
+      }
+    })()
+  catch (e) 
+    vm := finish(e)
+    return Promise.resolve(vm)
+
+LSHIFT_MASK := [0xff, 0x7f, 0x3f, 0x1f, 0x0f, 0x07, 0x03, 0x01]
+lshift := (arr: any[], n: number) ->
+  bitshift := n % 8
+  byteshift := Math.floor(n / 8)
+  mask := LSHIFT_MASK[bitshift]
+  overflowmask := mask ^ 0xFF
+  //@ts-ignore
+  result := Array.from<number>(arr.length).fill(0)
+  for (let i = arr.length - 1; i >= 0; i--) {
+    k := i - byteshift
+    if (k >= 0) {
+      let val = arr[i] & mask
+      val <<= bitshift
+      result[k] |= val
+    }
+    if (k - 1 >= 0) {
+      let carryval = arr[i] & overflowmask
+      carryval >>= (8 - bitshift) % 8
+      result[k - 1] |= carryval
+    }
+  }
+  result
+
+
+RSHIFT_MASK := [0xff, 0xfE, 0xfc, 0xf8, 0xf0, 0xe0, 0xc0, 0x80]
+rshift := (arr: string | any[], n: number) ->
+  bitshift := n % 8
+  byteshift := Math.floor(n / 8)
+  mask := RSHIFT_MASK[bitshift]
+  overflowmask := mask ^ 0xFF
+  result := new Array(arr.length).fill(0)
+  for (let i = 0; i < arr.length; i++) {
+    const k = i + byteshift
+    if (k < arr.length) {
+      let val = arr[i] & mask
+      val >>= bitshift
+      result[k] |= val
+    }
+    if (k + 1 < arr.length) {
+      let carryval = arr[i] & overflowmask
+      carryval <<= (8 - bitshift) % 8
+      result[k + 1] |= carryval
+    }
+  }
+  result
