@@ -1,3 +1,5 @@
-export {}
+// export * from './lib.civet'
 
-export const contract = 123
+// export * as nice from './test/app.scrypt.civet'
+// export * as nice from './contracts/counter.scrypt.civet'
+export {}

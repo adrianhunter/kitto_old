@@ -10,6 +10,8 @@ export function pluginScrypt(): Plugin {
   const filter = createFilter([
     '**/*.scrypt.ts',
     '*.scrypt.ts',
+    '**/*.scrypt.civet.tsx',
+    '*.scrypt.civet.tsx',
   ])
   return {
     name: 'kitto:scrypt',

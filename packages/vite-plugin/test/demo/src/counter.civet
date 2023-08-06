@@ -1,4 +1,0 @@
-@@contract
-export class Counter
-    @(public count: bigint)
-    inc() @count++; @

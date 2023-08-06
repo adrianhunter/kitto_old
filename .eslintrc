@@ -2,6 +2,7 @@
     "extends": "@antfu",
     "ignorePatterns": [
         "*.code-workspace",
+        "*.civet.tsx",
         "package.json",
         "tsconfig.json",
         "pnpm-workspace.yaml",

@@ -1,7 +1,10 @@
 export default {
   devDependencies: {
+    '@deepkit/core': 'latest',
+    '@types/lz-string': '^1.3.34',
+    '@types/micromatch': '^4.0.2',
+    '@types/node': '^20.1.0',
     '@phenomnomnominal/tsquery': '^6.1.2',
-    '@types/node': 'latest',
     'ts-morph': '^19.0.0',
     'unplugin-auto-import': '^0.16.6',
     'vite-plugin-inspect': '^0.7.33',
@@ -16,6 +19,12 @@ export default {
     'vite': '^4.4.7',
   },
   dependencies: {
+    '@marcj/ts-clone-node': '^2.0.0',
+    '@typescript/vfs': '^1.4.0',
+    'get-tsconfig': '^4.5.0',
+    'lz-string': '^1.4.4',
+    'micromatch': '^4.0.5',
+    'strip-json-comments': '^3.1.1',
     '@rollup/pluginutils': '^5.0.2',
   },
 }

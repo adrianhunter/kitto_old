@@ -1,2 +1,2 @@
-export * as nice from './contracts/multi.scrypt.ts'
+// export * as nice from './contracts/counter.scrypt.civet'
 export {}

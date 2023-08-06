@@ -6,12 +6,12 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "build": "vite build",
-
     "check": "tsc -b -w",
     "clean": "tsc -b --clean",
     "dev": "vite"
   },
   "dependencies": {
+    "@danielx/civet": "^0.6.19",
     "@types/node": "^20.4.8",
     "scryptlib": "^2.1.23"
   },

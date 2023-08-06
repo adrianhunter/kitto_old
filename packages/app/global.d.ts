@@ -7,7 +7,7 @@
 export { }
 declare global {
   const definePackageJSON: typeof import('pkg-types')['definePackageJSON']
-  const Deno: any
+  // const Deno: any
   const describe: any
   const it: any
   const bsv: any

@@ -269,11 +269,15 @@ export function createTsConfig() {
       forceConsistentCasingInFileNames: true,
       allowJs: true,
     },
+    // @ts-expect-error asd
+    reflection: true,
     include: [
       '*.ts',
       '**/*.ts',
       '*.tsx',
       '**/*.tsx',
+      '*.mjs',
+      '**/*.mjs',
       '../../global.d.ts',
     ],
     exclude: [
@@ -359,11 +363,49 @@ export function createViteDefaultDevConfig() {
   return /* ts */ `import { defineConfig } from 'vite'
 
 import kittoPlugin from '@kitto/vite-plugin'
-// @ts-expect-error asd
 export default defineConfig({
   plugins: [
     kittoPlugin()
-  ]
+  ],
+  server: {
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'require-corp',
+    },
+  },
+  worker: {
+    "format": "es",
+    "rollupOptions": {
+
+      output: {
+        "format": "esm"
+      }
+    }
+  },
+  // resolve: {
+
+  //   "alias": {
+  //     "better-sqlite3": "/Users/X/Documents/GitHub/kitto/packages/db/dist/better-sqlite3/better-sqlite3-inited.js"
+  //   }
+  // },
+  optimizeDeps: {
+
+    // include: ["@deepkit/type-compiler" , "@deepkit/vite"],
+
+    needsInterop: [
+    ],
+
+    esbuildOptions: {
+
+
+
+      target: "esnext"
+    },
+    exclude: [
+      // "@deepkit/sqlite", "@deepkit/orm",
+
+      '@sqlite.org/sqlite-wasm'],
+  },
 })
   `
 }

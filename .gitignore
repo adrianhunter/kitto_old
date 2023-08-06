@@ -14,6 +14,11 @@ packages/vite-plugin/scrypt/scryptlib
 packages/runtime
 packages/vscode-ext/civet
 packages/sqlite-wasm-deepkit
+packages/app
+packages/examples
+packages/db
+
+
 
 
 

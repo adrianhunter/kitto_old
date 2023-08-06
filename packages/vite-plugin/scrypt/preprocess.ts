@@ -15,8 +15,13 @@ function getScryptClasses(srcFile: tsm.SourceFileStructure) {
       if (
         Structure.isClass(sourceFiles)
         && sourceFiles.decorators?.find(a => a.name === 'contract')
-      )
+      ) {
+        console.error('FOUND SCRYPT CONTRACT')
+
+        sourceFiles.decorators = []
+
         classesToRemove.push({ node: sourceFiles, index })
+      }
     })
   }
 
@@ -105,7 +110,9 @@ function extendClasses(
       if (!structure.ctors || structure.ctors.length === 0) {
         structure.ctors = [
           {
-            statements: ['super(...arguments)'],
+            statements: [
+              // 'super(...arguments)'
+            ],
             parameters: [],
             returnType: undefined,
             typeParameters: [],
@@ -118,7 +125,7 @@ function extendClasses(
       }
       else if (structure.ctors[0]) {
         structure.ctors[0].statements = [
-          'super(...arguments)',
+          // 'super(...arguments)',
           // @ts-expect-error dirty stuff
           ...(structure.ctors[0].statements || []),
         ]
