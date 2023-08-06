@@ -10,7 +10,6 @@ interface Classes {
 }
 function getScryptClasses(srcFile: tsm.SourceFileStructure) {
   const classesToRemove: Classes[] = []
-  const index = 0
   if (Array.isArray(srcFile.statements)) {
     srcFile.statements.forEach((sourceFiles, index) => {
       if (
@@ -19,12 +18,10 @@ function getScryptClasses(srcFile: tsm.SourceFileStructure) {
       )
         classesToRemove.push({ node: sourceFiles, index })
     })
-
   }
-  
+
   return classesToRemove
 }
-
 
 function decorateClasses(classes: tsm.ClassDeclarationStructure[]) {
   classes.forEach((structure) => {
@@ -43,14 +40,14 @@ function decorateClasses(classes: tsm.ClassDeclarationStructure[]) {
           kind: tsm.StructureKind.Decorator,
           arguments: ['true'],
         })
-
       }
     })
 
     structure.methods?.forEach((a) => {
       const stmts = a.statements
 
-      if (!Array.isArray(stmts)) return
+      if (!Array.isArray(stmts))
+        return
 
       a.decorators ||= []
       a.decorators.push({
@@ -122,7 +119,7 @@ function extendClasses(
       else if (structure.ctors[0]) {
         structure.ctors[0].statements = [
           'super(...arguments)',
-          //@ts-ignore
+          // @ts-expect-error dirty stuff
           ...(structure.ctors[0].statements || []),
         ]
       }
@@ -135,7 +132,7 @@ function dirtyClean(a: string): string {
   return a
 }
 
-export async function transform(code: string, id?: string) {
+export async function transform(code: string, _id?: string) {
   const project = new Project()
   const srcFile = project.createSourceFile('foo.ts', code, {
     overwrite: true,

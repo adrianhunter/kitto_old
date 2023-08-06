@@ -1,0 +1,23 @@
+{
+  "packages": "packages/*",
+  "folders": [
+    {
+      "path": "packages/app"
+    },
+    {
+      "path": "packages/vite-plugin"
+    },
+    {
+      "path": "packages/cli"
+    },
+    {
+      "path": "packages/bvm"
+    },
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "files.exclude": {}
+  }
+}

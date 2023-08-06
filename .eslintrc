@@ -1,3 +1,11 @@
 {
-    "extends": "@antfu"
+    "extends": "@antfu",
+    "ignorePatterns": [
+        "*.code-workspace",
+        "package.json",
+        "tsconfig.json",
+        "pnpm-workspace.yaml",
+        "pnpm-lock.yaml",
+        "scrypt.index.json"
+    ]
 }

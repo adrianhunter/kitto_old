@@ -1,6 +1,13 @@
 node_modules
 .DS_Store
 dist
+package.json
+tsconfig.json
+import_map.json
+pnpm-lock.yaml
+pnpm-workspace.yaml
+scrypt.index.json
+vite.config.ts
 packages/bvm
 packages/runtime
 packages/sqlite-wasm-deepkit
@@ -8,6 +15,11 @@ packages/tsx
 packages/cli
 packages/kitto
 packages/sdk
+packages/cli
+packages/config
+
+
+
 
 
 

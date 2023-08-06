@@ -1,12 +1,16 @@
 {
   "name": "@kitto/vite-plugin",
-  "type": "module",
   "exports": {
-    ".": "./dist/pluginKitto.js"
+    ".": "./dist/mod.js",
+    "./*.js": "./dist/*.js"
+  },
+  "dependencies": {
+    "@rollup/pluginutils": "^5.0.2"
   },
   "files": [
     "dist"
   ],
+  "type": "module",
   "devDependencies": {
     "@phenomnomnominal/tsquery": "^6.1.2",
     "@types/node": "latest",
@@ -18,12 +22,10 @@
     "vite-tsconfig-paths": "^4.2.0"
   },
   "peerDependencies": {
+    "typescript": "latest",
     "scrypt-ts": "latest",
     "scrypt-ts-transpiler": "^1.1.6",
     "scryptlib": "latest",
     "vite": "^4.4.7"
-  },
-  "dependencies": {
-    "@rollup/pluginutils": "^5.0.2"
   }
 }

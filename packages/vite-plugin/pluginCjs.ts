@@ -1,8 +1,6 @@
-
 // import type { Plugin } from 'vite'
 // import { parse } from "acorn"
 // import { transform } from "cjs-es"
-
 
 // async function cjsToEsm(code: string) {
 
@@ -10,12 +8,10 @@
 //   return r.code
 // }
 
-
 // import path from "node:path"
 // export function pluginCjs(): Plugin {
 //   return {
 //     name: "kitto:cjs",
-
 
 //     async load(id: string) {
 //       if (id.startsWith("npm:")) {
@@ -26,18 +22,14 @@
 
 //           const r = await fetch(url).then(a => a.text())
 
-
-
 //           return r
 
 //         }
 //       }
 
-
 //     },
 
 //     resolveId(id: string) {
-
 
 //       if (id.startsWith("npm:")) {
 
@@ -51,22 +43,15 @@
 
 //             resolvedBy: "kitto:resolve"
 
-
-
 //           }
-
 
 //         }
 
 //       }
 
-
 //     },
 
 //     async transform(code: string, id: string) {
-
-
-
 
 //       if (id.includes("scrypt-ts")
 //       ) {
@@ -76,13 +61,9 @@
 //         }
 //         if (id.endsWith(".js")) {
 
-
-
-
 //         }
 
 //       }
-
 
 //     }
 //   }
