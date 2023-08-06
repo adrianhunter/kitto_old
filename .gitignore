@@ -14,8 +14,6 @@ packages/runtime
 packages/vscode-ext/civet
 packages/sqlite-wasm-deepkit
 packages/app
-packages/db
-
 packages/examples
 
 
