@@ -18,6 +18,7 @@ export default defineCommand({
   },
   async run({ args }) {
     consola.log('init')
+
     // consola.log("Parsed args:", args);
 
     // await Deno.mkdir(args.appName)

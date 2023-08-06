@@ -11,9 +11,6 @@
       "path": "packages/cli"
     },
     {
-      "path": "packages/testing"
-    },
-    {
       "path": "packages/examples"
     },
     {
@@ -23,13 +20,7 @@
       "path": "packages/db"
     },
     {
-      "path": "packages/assets"
-    },
-    {
       "path": "packages/bvm"
-    },
-    {
-      "path": "packages/vite-plugin-civet"
     },
     {
       "path": "."
@@ -43,6 +34,7 @@
     "files.exclude": {
       "scrypt.index.json": true,
       "pnpm-lock.yaml": true,
+      "tsconfig.json": true,
       "node_modules": true,
       "pnpm-workspace.yaml": true
     }

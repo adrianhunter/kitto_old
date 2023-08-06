@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck asd
 /*
  * Deepkit Framework
  * Copyright (c) Deepkit UG, Marc J. Schmidt
@@ -165,7 +167,7 @@ export function encodeOps(ops: ReflectionOp[]): string {
 
 function debug(...message: any[]): void {
   if (typeof process !== 'undefined' && typeof process.env.DEBUG === 'string' && process.env.DEBUG.includes('deepkit'))
-    console.debug(...message)
+    console.error(...message)
 }
 
 export const packSizeByte: number = 6
@@ -249,7 +251,7 @@ export function debugPackStruct(sourceFile: SourceFile, forType: Node, pack: { o
       stack.push(s)
   }
   // console.log('debugPackStruct:', 'getText' in forType ? forType.getText().replace(/\n/g, '') : 'no node'); //printer.printNode(EmitHint.Unspecified, forType, sourceFile).replace(/\n/g, ''));
-  console.log(stack.join(','), '|', ...items)
+  console.error(stack.join(','), '|', ...items)
 }
 
 interface Frame {

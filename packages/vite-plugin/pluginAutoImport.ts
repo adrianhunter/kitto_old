@@ -53,7 +53,6 @@ const autoImports = {
   sha256: true,
   hash160: true,
   hash256: true,
-  assert: true,
   lshift: true,
   rshift: true,
   asm: true,
@@ -100,17 +99,55 @@ const autoImportTypes = {
   SmartContract: true,
 }
 
-export function pluginAutoImport(): Plugin {
-  return AutoImport({
-    imports: [
-      {
-        'scrypt-ts': Object.keys(autoImports),
-      },
-      {
-        from: 'scrypt-ts',
-        imports: Object.keys(autoImportTypes),
-        type: true,
-      },
-    ],
-  })
+export function pluginAutoImport(): Plugin[] {
+  return [
+    AutoImport({
+
+      // dts: 'auto-imports-global.d.ts',
+      imports: [
+        {
+          consola: [
+            'log',
+            'info',
+            'warn',
+          ],
+        },
+        {
+          mocha: [
+            'it',
+            'describe',
+          ],
+        },
+        {
+          chai: [
+            'assert',
+          ],
+
+        },
+        // {
+        //   from: 'scrypt-ts',
+        //   imports: Object.keys(autoImportTypes),
+        //   type: true,
+
+        // },
+      ],
+    }),
+    AutoImport({
+      dts: 'auto-imports-scrypt.d.ts',
+      include: ['*.scrypt.ts'],
+      imports: [
+
+        {
+          'scrypt-ts': Object.keys(autoImports),
+
+        },
+        {
+          from: 'scrypt-ts',
+          imports: Object.keys(autoImportTypes),
+          type: true,
+
+        },
+      ],
+    }),
+  ]
 }

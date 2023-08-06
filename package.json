@@ -11,13 +11,21 @@
     "dev": "vite"
   },
   "dependencies": {
+    "consola": "latest",
     "@danielx/civet": "^0.6.19",
     "@types/node": "^20.4.8",
     "scryptlib": "^2.1.23"
   },
   "devDependencies": {
+
+    "@types/chai": "^4.3.5",
+    "@types/mocha": "^10.0.1",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0",
+    "@kitto/testing": "workspace:^",
     "@antfu/eslint-config": "^0.40.0",
     "eslint": "^8.46.0",
     "vite": "^4.4.8"
   }
 }
+

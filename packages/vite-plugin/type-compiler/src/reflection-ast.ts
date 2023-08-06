@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck asd
 /*
  * Deepkit Framework
  * Copyright (c) Deepkit UG, Marc J. Schmidt

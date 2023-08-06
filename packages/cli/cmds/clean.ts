@@ -8,6 +8,7 @@ export default defineCommand({
   },
   async run() {
     await updateProject()
+    await exec('find . -type f -name "*.civet.tsx" -exec rm -f {} \;')
     await exec('tsc -b --clean')
   },
 })

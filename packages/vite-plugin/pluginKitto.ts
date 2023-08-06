@@ -2,6 +2,7 @@ import Inspect from 'vite-plugin-inspect'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
 import { pluginCivet } from './pluginCivetSimple.ts'
+
 import { pluginAutoImport } from './pluginAutoImport.ts'
 import { pluginConfig } from './pluginConfig.ts'
 import { pluginScrypt } from './pluginScrypt.ts'

@@ -21,7 +21,8 @@ export default defineCommand({
       // exec(`tsc -b${watchCmd}`),
       exec(`./node_modules/.bin/vite build${watchCmd}`),
       // exec(`deno run -A npm:vite build${watchCmd}`),
-      // exec(`tsc -b${watchCmd}`),
+
     ])
+    await exec(`tsc -b${watchCmd}`)
   },
 })

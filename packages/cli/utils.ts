@@ -236,7 +236,8 @@ export function createRootTsConfig(ws: Workspace) {
   })
   return defineTSConfig(
     {
-      files: [],
+      files: [
+      ],
       // @ts-expect-error asd
       references,
     })
@@ -272,12 +273,16 @@ export function createTsConfig() {
     // @ts-expect-error asd
     reflection: true,
     include: [
+      '../../auto-imports.d.ts',
+      '../../auto-imports-scrypt.d.ts',
       '*.ts',
       '**/*.ts',
       '*.tsx',
       '**/*.tsx',
       '*.mjs',
       '**/*.mjs',
+      '*.js',
+      '**/*.js',
       '../../global.d.ts',
     ],
     exclude: [
@@ -527,10 +532,59 @@ export function createViteDefaultConfig(ws?: Workspace) {
   ]
   
   import pluginKitto from "./packages/vite-plugin/mod.ts"
+
+
+const skipPlugins = [
+  'vite:worker-import-meta-url',
+]
+
+
+
   export default defineConfig({
     plugins: [
-      pluginKitto()
+      pluginKitto(),
+
+      {
+        name: 'asd',
+        configResolved(config) {
+          config.plugins = config.plugins.filter((a) => {
+            return !skipPlugins.includes(a.name)
+          })
+        },
+      },
     ],
+
+  worker: {
+    format: 'es',
+
+    rollupOptions: {
+
+      external: externals,
+
+      output: {
+
+        // preserveModules: true,
+        esModule: true,
+
+        format: 'esm',
+      },
+    },
+  },
+  optimizeDeps: {
+
+    // include: ['@deepkit/type-compiler', '@deepkit/vite'],
+
+    needsInterop: [
+    ],
+
+    esbuildOptions: {
+
+      target: 'esnext',
+    },
+    exclude: [
+
+      '@sqlite.org/sqlite-wasm'],
+  },
     build: {
       lib: {
         entry: ${JSON.stringify(viteEntries, null, 2)},
@@ -552,6 +606,8 @@ export function createViteDefaultConfig(ws?: Workspace) {
           if (a.startsWith("npm:")) {
             return true
           }
+          if (!a.startsWith('.') && !a.startsWith('/'))
+            return true
           return false
         },
         output: {
