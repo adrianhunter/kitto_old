@@ -14,10 +14,30 @@
       "path": "packages/bvm"
     },
     {
+      "path": "packages/vscode-ext"
+    },
+    {
+      "path": "packages/vite-plugin-civet"
+    },
+    {
       "path": "."
     }
   ],
   "settings": {
-    "files.exclude": {}
+    "files.exclude": {
+      "**/*.civet.tsx": true
+    },
+    "files.xxx": {
+      "dist": true,
+      "pnpm-lock.yaml": true,
+      ".eslintrc": true,
+      "packages": true,
+      "import_map.json": true,
+      "node_modules": true,
+      "tsconfig.json": true,
+      "pnpm-workspace.yaml": true,
+      "vite.config.ts": true,
+      "package.json": true
+    }
   }
 }

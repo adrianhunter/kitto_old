@@ -10,12 +10,11 @@ scrypt.index.json
 vite.config.ts
 packages/bvm
 packages/runtime
+packages/vscode-ext/civet
 packages/sqlite-wasm-deepkit
 packages/tsx
-packages/cli
 packages/kitto
 packages/sdk
-packages/cli
 packages/config
 
 
