@@ -10,11 +10,24 @@ scrypt.index.json
 vite.config.ts
 auto-import.d.ts
 packages/vite-plugin/scrypt/scryptlib
-packages/runtime
 packages/vscode-ext/civet
-packages/sqlite-wasm-deepkit
 packages/app
 packages/examples
+packages/editor
+packages/xxx
+packages/lsp
+packages/ide
+
+packages/vite-plugin/vite-project
+
+
+
+packages/vscode-ext
+trash
+
+
+
+packages/web-worker-lsp
 
 
 

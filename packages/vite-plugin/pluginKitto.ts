@@ -7,15 +7,19 @@ import { pluginAutoImport } from './pluginAutoImport.ts'
 import { pluginConfig } from './pluginConfig.ts'
 import { pluginScrypt } from './pluginScrypt.ts'
 import { pluginDeepkit } from './pluginDeepkit.ts'
+import { pluginLSP } from './pluginLSP.ts'
 
 export function pluginKitto() {
   return [
-    Inspect(),
+    Inspect({
+      outputDir: '/Users/X/Documents/GitHub/kitto/__debug',
+    }),
     pluginAutoImport(),
     tsconfigPaths(),
     pluginScrypt(),
     pluginCivet(),
     pluginDeepkit(),
+    pluginLSP(),
 
     // {
     //   // stripTypes: false,

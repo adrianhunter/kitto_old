@@ -1,4 +1,4 @@
-/// <reference types="@kitto/app/globals" />
+// / <reference types="@kitto/app/globals" />
 
 // import * as x from '@kitto/app'
 
@@ -47,7 +47,8 @@
 // }
 
 // const demo = new Demo(-2n, 7n)
-import { A } from './a.scrypt.ts'
-import { B } from './b.scrypt.ts'
+// import { A } from './a.scrypt.ts'
+// import { B } from './b.scrypt.ts'
 
-console.error(A, B)
+// console.error(A, B)
+export {}

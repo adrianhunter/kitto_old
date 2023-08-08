@@ -2,10 +2,25 @@
   "packages": "packages/*",
   "folders": [
     {
+      "path": "packages/ide"
+    },
+    {
       "path": "packages/app"
     },
     {
       "path": "packages/vite-plugin"
+    },
+    {
+      "path": "packages/xxx"
+    },
+    {
+      "path": "packages/web-worker-lsp"
+    },
+    {
+      "path": "packages/lsp"
+    },
+    {
+      "path": "packages/trash"
     },
     {
       "path": "packages/cli"
@@ -20,7 +35,13 @@
       "path": "packages/db"
     },
     {
+      "path": "packages/lsp-turbo"
+    },
+    {
       "path": "packages/bvm"
+    },
+    {
+      "path": "packages/editor"
     },
     {
       "path": "."
@@ -29,14 +50,20 @@
   "settings": {
     "deno.enable": false,
     "deno.unstable": true,
-    "deno.importMap": "./import_map.json",
-    "deno.config": "./deno.jsonc",
     "files.exclude": {
       "scrypt.index.json": true,
       "pnpm-lock.yaml": true,
+      "package.json": true,
+      "*.civet.tsx": true,
+      "dist": true,
+      "vite.config.ts": true,
       "tsconfig.json": true,
-      "node_modules": true,
       "pnpm-workspace.yaml": true
-    }
+    },
+    "typescript.tsdk": "kitto/node_modules/typescript/lib",
+    "deno.internalDebug": true,
+    "deno.suggest.names": false,
+    "deno.lint": false,
+    "editor.formatOnSave": true
   }
 }

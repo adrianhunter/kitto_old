@@ -1,0 +1,7 @@
+export default Pkg
+  exports: 
+    ".": "./dist/mod.js"
+    './*.civet': 
+      'import': './dist/*.js'
+      'types': './dist/*.d.ts'
+    './package.json': './package.json'

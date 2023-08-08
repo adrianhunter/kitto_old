@@ -20,7 +20,7 @@ export default defineCommand({
     // await updateProject()
     await emitViteDevConfig()
     await Promise.all([
-      exec('./node_modules/.bin/vite'),
+      exec('pnpm run dev'),
       // exec('deno run --import-map /Users/X/Documents/GitHub/kitto/import_map.json -A npm:vite'),
     ])
   },

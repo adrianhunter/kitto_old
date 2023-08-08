@@ -8,6 +8,6 @@ export default defineCommand({
   },
   async run() {
     await updateProject()
-    await exec('tsc -b')
+    await exec('tsc -b -w')
   },
 })

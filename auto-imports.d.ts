@@ -7,8 +7,9 @@ export {}
 declare global {
   const assert: typeof import('chai')['assert']
   const describe: typeof import('mocha')['describe']
-  const info: typeof import('consola')['info']
+  const error: typeof import('./packages/app/api')['error']
+  const info: typeof import('./packages/app/api')['info']
   const it: typeof import('mocha')['it']
-  const log: typeof import('consola')['log']
-  const warn: typeof import('consola')['warn']
+  const log: typeof import('./packages/app/api')['log']
+  const warn: typeof import('./packages/app/api')['warn']
 }

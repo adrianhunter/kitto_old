@@ -17,9 +17,13 @@ export default defineCommand({
   async run({ args }) {
     await updateProject()
     const watchCmd = args.watch ? ' -w' : ''
+    const buildCmd = args.watch ? 'build:watch' : 'build'
+    await exec('pnpm i')
+
     await Promise.all([
+
       // exec(`tsc -b${watchCmd}`),
-      exec(`./node_modules/.bin/vite build${watchCmd}`),
+      exec(`pnpm run ${buildCmd}`),
       // exec(`deno run -A npm:vite build${watchCmd}`),
 
     ])

@@ -49,7 +49,6 @@ declare global {
   const alterFileExt: typeof import('scrypt-ts')['alterFileExt']
   const and: typeof import('scrypt-ts')['and']
   const asm: typeof import('scrypt-ts')['asm']
-  const assert: typeof import('scrypt-ts')['assert']
   const bsv: typeof import('scrypt-ts')['bsv']
   const buildOpreturnScript: typeof import('scrypt-ts')['buildOpreturnScript']
   const buildPublicKeyHashScript: typeof import('scrypt-ts')['buildPublicKeyHashScript']

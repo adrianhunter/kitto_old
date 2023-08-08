@@ -104,12 +104,44 @@ export function pluginAutoImport(): Plugin[] {
     AutoImport({
 
       // dts: 'auto-imports-global.d.ts',
+
+      // resolvers: [
+
+      //   [
+      //     // {
+      //     //   type: 'directive',
+      //     //   resolve(a) {
+      //     //     console.log('REXXXXSOLVEdirective', a, ...arguments)
+      //     //   },
+      //     // },
+
+      //     {
+      //       type: 'component',
+      //       resolve(a) {
+      //         if (a === 'log') {
+      //           return {
+
+      //             as: 'log',
+      //             name: 'default',
+
+      //             from: 'consola',
+
+      //           }
+      //         }
+
+      //         // console.log('REXXXXSOLVE', a, ...arguments)
+      //       },
+      //     }],
+      // ],
       imports: [
+
         {
-          consola: [
+          '/Users/X/Documents/GitHub/kitto/packages/app/api.ts': [
             'log',
             'info',
             'warn',
+            'error',
+
           ],
         },
         {

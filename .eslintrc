@@ -4,6 +4,7 @@
         "*.code-workspace",
         "*.civet.tsx",
         "package.json",
+        "sqlmean.mjs",
         "tsconfig.json",
         "pnpm-workspace.yaml",
         "pnpm-lock.yaml",

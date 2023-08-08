@@ -1,31 +1,24 @@
 {
   "name": "kitto",
   "type": "module",
+  "workspaces": ["packages/*"],
   "private": true,
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "build": "vite build",
+    "opt": "vite optimize",
+    "preview": "vite preview",
+    "build:watch": "vite build -w",
     "check": "tsc -b -w",
     "clean": "tsc -b --clean",
     "dev": "vite"
   },
-  "dependencies": {
-    "consola": "latest",
-    "@danielx/civet": "^0.6.19",
-    "@types/node": "^20.4.8",
-    "scryptlib": "^2.1.23"
-  },
   "devDependencies": {
-
-    "@types/chai": "^4.3.5",
-    "@types/mocha": "^10.0.1",
-    "chai": "^4.3.7",
-    "mocha": "^10.2.0",
-    "@kitto/testing": "workspace:^",
-    "@antfu/eslint-config": "^0.40.0",
-    "eslint": "^8.46.0",
+    "@danielx/civet": "^0.6.19",
+    "typescript": "^5.1.6",
     "vite": "^4.4.8"
+  },
+  "dependencies": {
   }
 }
-
