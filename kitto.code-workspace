@@ -1,69 +1,69 @@
 {
-  "packages": "packages/*",
-  "folders": [
-    {
-      "path": "packages/ide"
-    },
-    {
-      "path": "packages/app"
-    },
-    {
-      "path": "packages/vite-plugin"
-    },
-    {
-      "path": "packages/xxx"
-    },
-    {
-      "path": "packages/web-worker-lsp"
-    },
-    {
-      "path": "packages/lsp"
-    },
-    {
-      "path": "packages/trash"
-    },
-    {
-      "path": "packages/cli"
-    },
-    {
-      "path": "packages/examples"
-    },
-    {
-      "path": "packages/vscode-ext"
-    },
-    {
-      "path": "packages/db"
-    },
-    {
-      "path": "packages/lsp-turbo"
-    },
-    {
-      "path": "packages/bvm"
-    },
-    {
-      "path": "packages/editor"
-    },
-    {
-      "path": "."
-    }
-  ],
+
+
   "settings": {
-    "deno.enable": false,
+
+
+    "deno.enable": true,
     "deno.unstable": true,
-    "files.exclude": {
-      "scrypt.index.json": true,
-      "pnpm-lock.yaml": true,
-      "package.json": true,
-      "*.civet.tsx": true,
-      "dist": true,
-      "vite.config.ts": true,
-      "tsconfig.json": true,
-      "pnpm-workspace.yaml": true
-    },
-    "typescript.tsdk": "kitto/node_modules/typescript/lib",
-    "deno.internalDebug": true,
-    "deno.suggest.names": false,
-    "deno.lint": false,
-    "editor.formatOnSave": true
-  }
+    // "deno.lint": false,
+    "deno.config": "/Users/X/Documents/GitHub/kitto/deno.jsonc"
+  },
+
+          "folders": [
+
+
+      {
+        "path": "packages/core"
+      },
+      {
+        "path": "packages/app"
+      },
+
+      {
+        "path": "packages/plugins"
+      },
+      {
+        "path": "packages/lsp"
+      },
+      {
+        "path": "packages/scrypt"
+      },
+      // {
+      //   "path": "packages/checker"
+      // },
+      // {
+      //   "path": "packages/dev"
+      // },
+      // {
+      //   "path": "packages/lsp"
+      // },
+      // {
+      //   "path": "packages/trash"
+      // },
+      {
+        "path": "packages/cli"
+      },
+      // {
+      //   "path": "packages/examples"
+      // },
+      // {
+      //   "path": "packages/vscode-ext"
+      // },
+      // {
+      //   "path": "packages/db"
+      // },
+      // {
+      //   "path": "packages/lsp-turbo"
+      // },
+      // {
+      //   "path": "packages/bvm"
+      // },
+      // {
+      //   "path": "packages/editor"
+      // },
+      {
+        "path": "."
+      }
+] 
 }

@@ -1,5 +1,4 @@
-import { defineCommand } from 'citty'
-import { emitViteDevConfig, exec } from '../utils.ts'
+import { defineCommand } from 'npm:citty'
 
 export default defineCommand({
   meta: {
@@ -8,20 +7,37 @@ export default defineCommand({
   },
   args: {
 
-    // appName: {
+    // entry: {
     //     type: "positional",
-
+    //     "default": "index.tsx",
     //     description: "app name",
-    //     required: true,
     // }
 
   },
   async run({ args }) {
-    // await updateProject()
-    await emitViteDevConfig()
-    await Promise.all([
-      exec('pnpm run dev'),
-      // exec('deno run --import-map /Users/X/Documents/GitHub/kitto/import_map.json -A npm:vite'),
-    ])
+    // deno run -A --no-check --watch ./server.tsx
+    // Deno.chdir(new URL("../app", import.meta.url))
+    // const x = path.resolve(Deno.cwd(), args.entry)
+
+    // console.log(x)
+
+    // const serverPath = new URL("../app/dev.ts", import.meta.url)
+
+    // const command = new Deno.Command(Deno.execPath(), {
+    //   args: [
+    //    "task", "dev"
+    //   ],
+    // })
+    // const command = new Deno.Command(Deno.execPath(), {
+    //   args: [
+    //     'run',
+    //     '-A',
+    //     "--watch",
+    //     serverPath.href
+    //   ],
+    // })
+    // const server = command.spawn()
+
+    // await server.status
   },
 })

@@ -6,11 +6,11 @@
 
 export { }
 declare global {
-  const definePackageJSON: typeof import('pkg-types')['definePackageJSON']
+  const definePackageJSON: typeof     import('pkg-types')['definePackageJSON']
   const Deno: any
   // export type { definePackageJSON } from "pkg-types";
 
-  export type PkgExtended  = PackageJson & {tsconfig?: TSConfig & {
+        export type PkgExtended  = PackageJson & {tsconfig?: TSConfig & {
     reflection?: boolean | string | string[]
   }}
 

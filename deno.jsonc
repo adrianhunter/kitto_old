@@ -1,0 +1,10 @@
+{
+  "tasks": {
+
+    "serve": "deno run -A --watch packages/plugins/server.ts",
+    "test": "deno test --no-check -A --watch --reload=http://localhost:1337 test/plugins.test.ts"
+    
+
+  },
+  "importMap": "./import_map.json"
+}

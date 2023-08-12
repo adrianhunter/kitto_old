@@ -31,10 +31,27 @@ packages/web-worker-lsp
 
 
 
+artifacts
+
+test/out
+test/contracts
+
+autoimport.d.ts
+
+packages/demo
+packages/lsp-turbo
+packages/examples
+packages/core
+packages/app
 
 
 
 
 
+
+
+
+packages/checker
+packages/lspxxx
 
 

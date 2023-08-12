@@ -15,12 +15,12 @@ export default defineCommand({
   },
   async run({ args }) {
 
-    if(args.name) {
+    if (args.name) {
 
-      
+
     }
     await updateProject()
-   
+
 
     await Promise.all([
 

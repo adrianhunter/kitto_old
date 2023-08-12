@@ -1,24 +1,23 @@
 {
   "name": "kitto",
-  "type": "module",
-  "workspaces": ["packages/*"],
-  "private": true,
+  "version": "1.0.0",
+  "description": "Tools for developing Smart Contracts with Scrypt",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
   "scripts": {
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "build": "vite build",
-    "opt": "vite optimize",
-    "preview": "vite preview",
-    "build:watch": "vite build -w",
-    "check": "tsc -b -w",
-    "clean": "tsc -b --clean",
-    "dev": "vite"
+    "lint:fix": "eslint ./packages/scrypt/**/*.ts --fix"
   },
+  "author": "",
+  "license": "ISC",
   "devDependencies": {
-    "@danielx/civet": "^0.6.19",
-    "typescript": "^5.1.6",
-    "vite": "^4.4.8"
-  },
-  "dependencies": {
+    "@antfu/eslint-config": "^0.40.2",
+    "@typescript-eslint/parser": "^6.3.0",
+    "eslint": "^8.47.0",
+    "eslint-plugin-optimal-modules": "^1.0.2",
+    "scrypt-ts": "^1.3.1",
+    "scrypt-ts-lib": "^0.1.20"
   }
 }

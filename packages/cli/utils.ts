@@ -351,7 +351,6 @@ export async function updateWorkspaceFolder(p: WsFolder, ws: Workspace) {
     // Deno.readTextFile(``)
     const pkgPath = `${ws.root}/${p.path}/pkg.civet`
 
-    console.log(pkgPath)
     const src = await fs.readFile(pkgPath, 'utf-8')
 
     let jsCode = civet.compile(src, {
@@ -359,7 +358,6 @@ export async function updateWorkspaceFolder(p: WsFolder, ws: Workspace) {
     })
 
     // if (jsCode)
-    //   console.log(jsCode)
 
     jsCode = jsCode.replace('export default Pkg(', 'export default (')
 
