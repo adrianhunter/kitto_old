@@ -1,0 +1,80 @@
+
+
+<script type="importmap">
+
+
+  {
+    "imports": {
+      "@kitto/plugins/": "./packages/plugins/",
+      "@kitto/testing": "./testing.ts",
+      "@kitto/": "http://localhost:1337/packages/",
+      "~/contract/": "http://localhost:1337/test/src/",
+      "~/contracts/": "http://localhost:1337/test/contracts/",
+
+      "citty": "https://esm.sh/citty",
+      "consola": "https://esm.sh/consola",
+      "@deepkit/type-compiler": "https://esm.sh/@deepkit/type-compiler@1.0.1-alpha.97",
+      "@deepkit/type": "https://esm.sh/@deepkit/type@1.0.1-alpha.97",
+      "scrypt-ts": "https://esm.sh/scrypt-ts",
+      "scryptlib": "https://esm.sh/scryptlib",
+
+      "bsv": "http://localhost:1337/packages/scrypt/dist/scrypt.mjs",
+
+
+      "https://esm.sh/v130/bsv@2.0.10/es2022/bsv.mjs": "http://localhost:1337/packages/scrypt/dist/scrypt.mjs",
+      "https://esm.sh/v130/bsv@1.5.6/es2022/bsv.mjs": "http://localhost:1337/packages/scrypt/dist/scrypt.mjs",
+      "bn.js": "https://esm.sh/bn.js",
+      "bs58": "https://esm.sh/bs58",
+      "elliptic": "https://esm.sh/elliptic",
+      "hash.js": "https://esm.sh/hash.js",
+      "inherits": "https://esm.sh/inherits@2.0.4",
+      "node:crypto": "https://esm.sh/crypto-browserify",
+
+      "node:assert": "https://esm.sh/assert@2.0.0",
+
+
+
+      "node:buffer": "https://esm.sh/buffer-es6",
+  
+      "@danielx/civet": "https://esm.sh/@danielx/civet@0.6.21",
+      "scrypt-ts-lib": "https://esm.sh/scrypt-ts-lib@0.1.20",
+      "@deepkit/core": "https://esm.sh/@deepkit/core@1.0.1-alpha.97",
+      "https://esm.sh/v130/typescript@4.9.5/es2022/typescript.mjs": "https://esm.sh/v130/typescript@5.1.6/es2022/typescript.mjs",
+      "https://esm.sh/v130/typescript@4.9.5/denonext/typescript.mjs": "https://esm.sh/v130/typescript@5.1.6/denonext/typescript.mjs",
+      "typescript": "https://esm.sh/typescript@5.1.6",
+      "pkg-types": "https://esm.sh/pkg-types",
+      "unplugin-auto-import/vite": "https://esm.sh/unplugin-auto-import/vite",
+      "unplugin-auto-import": "https://esm.sh/unplugin-auto-import",
+      "magic-string": "https://esm.sh/magic-string",
+      "fast-glob": "https://esm.sh/fast-glob",
+      "unimport": "https://esm.sh/unimport"
+  
+    },
+    "scopes": {
+  
+  
+    
+        "https://esm.sh/@deepkit/type-compiler/": {
+          "typescript": "https://esm.sh/typescript@5.1.6"
+        }
+    }
+  }
+  
+
+
+</script>
+<script type="module" >
+
+const x = await import("bsv")
+
+  const {bsv} = await import("scrypt-ts")
+  console.log(x.default.Transaction.prototype.checkFeeRate, bsv.Transaction.prototype.checkFeeRate)
+</script>
+
+
+
+<script type="module" >
+
+
+  import("~/contracts/P2pkh.scrypt.ts")
+</script>

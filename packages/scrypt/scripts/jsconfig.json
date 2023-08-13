@@ -1,0 +1,9 @@
+{
+
+  "include": [
+    "./bsv/bsv-modern/lib/**/*.js",
+  ],
+  "exclude": [
+    "./node_modules", "./dist","./bsv/**/*.min.js"
+  ]
+}

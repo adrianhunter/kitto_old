@@ -1,6 +1,8 @@
 import type { AddressOption, TransactionResponse, TxHash, UTXO, UtxoQueryOptions } from 'scrypt-ts'
 import { Provider, bsv, filterUTXO } from 'scrypt-ts'
 
+// import * as bsv from './bsv.ts'
+
 declare enum ProviderEvent {
   /** The provider will send a 'Connected' event after the connection is successful. */
   Connected = 'connected',

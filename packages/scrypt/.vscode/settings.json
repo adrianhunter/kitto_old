@@ -1,0 +1,36 @@
+{
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    // "bsv/bsv-old": true,
+    // "dist": true,
+    // "backup/src": true,
+    // "backup/test": true,
+    // "src3": true,
+    // "npm": true,
+    // "src2": true,
+    ".vscode/.cache": true,
+    // "bbb": true,
+    // // "dist": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true
+  },
+  "editor.formatOnSave": true,
+  "deno.enable": true,
+  "deno.unstable": true,
+  "deno.config": "./deno.jsonc",
+  "deno.cache": "./.vscode/.cache",
+  "deno.suggest.imports.autoDiscover": false,
+  "deno.lint": false,
+  // "eslint.workingDirectories": [
+  //   "./"
+  // ],
+  // "deno.enablePaths": [
+  //   "./utils.ts"
+  // ],
+  // "deno.suggest.imports.hosts": {
+  //   "https://deno.land": true
+  // }
+}

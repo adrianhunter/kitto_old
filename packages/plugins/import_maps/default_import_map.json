@@ -1,0 +1,44 @@
+{
+  "imports": {
+    "citty": "npm:citty",
+    "consola": "npm:consola",
+    "@deepkit/type-compiler": "https://esm.sh/@deepkit/type-compiler@1.0.1-alpha.97",
+    "@deepkit/type": "https://esm.sh/@deepkit/type@1.0.1-alpha.97",
+    "scrypt-ts": "npm:scrypt-ts",
+    "scryptlib": "npm:scryptlib",
+    "bsv": "http://localhost:1337/packages/scrypt/dist/scrypt.mjs",
+    "https://esm.sh/v130/bsv@2.0.10/es2022/bsv.mjs": "http://localhost:1337/packages/scrypt/dist/scrypt.mjs",
+    "https://esm.sh/v130/bsv@1.5.6/es2022/bsv.mjs": "http://localhost:1337/packages/scrypt/dist/scrypt.mjs",
+    "bn.js": "https://esm.sh/bn.js",
+    "bs58": "https://esm.sh/bs58",
+    "elliptic": "https://esm.sh/elliptic",
+    "react/jsx-runtime": "https://esm.sh/react@18.2.0/jsx-runtime",
+    "events": "node:events",
+    "react": "https://esm.sh/v122/react@18.2.0?dev",
+    "react/": "https://esm.sh/v122/react@18.2.0/",
+    "react-dom": "https://esm.sh/v122/react-dom@18.2.0",
+    "react-dom/server": "https://esm.sh/v122/react-dom@18.2.0/server?dev",
+    "react-dom/client": "https://esm.sh/v122/react-dom@18.2.0/client?dev",
+    "ultra/": "https://deno.land/x/ultra@v2.3.6/",
+    "@ultra/qrcode/": "https://deno.land/x/qrcode@v2.0.0/",
+    "@danielx/civet": "https://esm.sh/@danielx/civet@0.6.21",
+    "scrypt-ts-lib": "https://esm.sh/scrypt-ts-lib@0.1.20",
+    "@deepkit/core": "https://esm.sh/@deepkit/core@1.0.1-alpha.97",
+    "https://esm.sh/v130/typescript@4.9.5/es2022/typescript.mjs": "https://esm.sh/v130/typescript@5.1.6/es2022/typescript.mjs",
+    "https://esm.sh/v130/typescript@4.9.5/denonext/typescript.mjs": "https://esm.sh/v130/typescript@5.1.6/denonext/typescript.mjs",
+    "typescript": "https://esm.sh/typescript@5.1.6",
+    "pkg-types": "npm:pkg-types",
+    "unplugin-auto-import/vite": "npm:unplugin-auto-import/vite",
+    "unplugin-auto-import": "npm:unplugin-auto-import",
+    "magic-string": "npm:magic-string",
+    "fast-glob": "npm:fast-glob",
+    "unimport": "npm:unimport"
+
+  },
+  "scopes": {
+
+      "https://esm.sh/@deepkit/type-compiler/": {
+        "typescript": "https://esm.sh/typescript@5.1.6"
+      }
+  }
+}

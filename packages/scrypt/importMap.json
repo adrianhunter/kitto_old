@@ -1,0 +1,20 @@
+{
+  "imports": {
+    "bsv": "./src/mod.js",
+    "bsv/": "./src/",
+
+    "data/": "./test/data/",
+
+    "testings": "./test/testings.js",
+    "buffer": "https://deno.land/std@0.177.0/node/buffer.ts",
+    "aes-js": "https://esm.sh/aes-js",
+    "elliptic": "https://esm.sh/elliptic",
+    "bs58": "https://esm.sh/bs58",
+    "inherits": "https://esm.sh/inherits",
+    "assert": "https://esm.sh/assert",
+
+    "chai": "https://esm.sh/chai",
+    "sinon": "https://esm.sh/sinon",
+    "hash.js": "https://esm.sh/hash.js"
+  }
+}

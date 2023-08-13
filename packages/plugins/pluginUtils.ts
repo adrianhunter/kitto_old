@@ -1,49 +1,63 @@
-import { TSConfig } from "pkg-types"
+import path from 'node:path'
+import type { TSConfig } from 'pkg-types'
 
 const cwd = Deno.cwd()
-import path from "node:path"
+const dirs: { [key: string]: boolean } = {}
 
-const dirs: {[key: string]: boolean} = {}
-
-export function getOutputPath(fileName: string, config: TSConfig) {
-
-  fileName = fileName.replace(cwd + `/${config.compilerOptions?.rootDir}`, "")
-
-  fileName=  `./${config.compilerOptions?.outDir}${fileName}`
-  // const wow = fileName.replace(cwd, `./${config.compilerOptions?.outDir}`)
-  // console.log("🚀 ~ file: scryptProgram.ts:389 ~ createTemporaryFile ~ wow:", fileName)
-  const dirname = path.dirname(fileName)
-
-  if(!dirs[dirname]) {
-
-    try {
-      Deno.mkdirSync(dirname, {recursive: true})
-  
-  
-      dirs[dirname] = true
-  
-    }catch(e) {}
+function getOutputPath(fileName: string, config: TSConfig) {
+  let rootDir = ""
+  if (config.compilerOptions?.rootDir) {
+    rootDir = `/${config.compilerOptions?.rootDir}`
   }
-
-
-
-
-  
-
-  // Deno.writeTextFileSync(wow, content)
-
+  fileName = fileName.replace(`${cwd}${rootDir}`, '')
+  fileName = `./${config.compilerOptions?.outDir || "dist"}${fileName}`
+  const dirname = path.dirname(fileName)
+  if (!dirs[dirname]) {
+    try {
+      Deno.mkdirSync(dirname, { recursive: true })
+      dirs[dirname] = true
+    }
+    // deno-lint-ignore no-empty
+    catch (_e) { }
+  }
   return fileName
-  // const tempDir = os.tmpdir()
-  // const tempFilename = 'tmp.scrypt'
-  // const tempFilePath = path.join(tempDir, tempFilename)
-
-  // try {
-  //   fss.writeFileSync(tempFilePath, content)
-
-  //   return tempFilePath
-  // }
-  // catch (err) {
-  //   console.error('Error creating temporary file:', err)
-  //   throw err
-  // }
 }
+
+export default { getOutputPath }
+
+
+
+// import * as ts from 'typescript';
+// import * as path from 'path';
+
+// function getOutputFilePath(tsconfigPath: string, inputFile: string): string | null {
+//     const parsedConfig = ts.readConfigFile(tsconfigPath, ts.sys.readFile);
+
+//     if (parsedConfig.error) {
+//         console.error("Error reading tsconfig:", parsedConfig.error);
+//         return null;
+//     }
+
+//     const parsedCommandLine = ts.parseJsonConfigFileContent(parsedConfig.config, ts.sys, path.dirname(tsconfigPath));
+
+//     if (parsedCommandLine.errors && parsedCommandLine.errors.length) {
+//         console.error("Error parsing tsconfig content:", parsedCommandLine.errors);
+//         return null;
+//     }
+
+//     const outDir = parsedCommandLine.options.outDir || '';
+//     const rootDir = parsedCommandLine.options.rootDir || path.commondir(parsedCommandLine.fileNames);
+
+//     const relativeToRoot = path.relative(rootDir, inputFile);
+//     return path.join(outDir, relativeToRoot).replace(/\.tsx?$/, '.js');
+// }
+
+// const tsconfigPath = './tsconfig.json'; // Adjust the path if your tsconfig is elsewhere
+// const inputFile = './src/utils/helper.ts'; // Your input TypeScript file path
+
+// const output = getOutputFilePath(tsconfigPath, inputFile);
+// if (output) {
+//     console.log(`Output file will be: ${output}`);
+// } else {
+//     console.error("Could not determine the output file path.");
+// }

@@ -1,43 +1,20 @@
-import type { Plugin } from './types.d.ts'
-import pp from "./scrypt/preprocess.ts"
+import type { Plugin } from 'vite'
+import { createFilter } from 'npm:@rollup/pluginutils'
+import pp from './scrypt/preprocess.ts'
+
 export default function pluginScryptPP(): Plugin {
+  const filter = createFilter(['**/*.scrypt.ts'])
+
   return {
     name: 'kitto:scrypt_pp',
     enforce: 'pre',
-    extnames: [".ts", ".tsx", ".mts", ".cts"],
-    async transform(opts) {
-      if (!(opts.id.includes(".scrypt."))) {
-        return opts
-      }
-      opts.code =await pp(opts.code)
-      return opts
+    // extnames: ['.ts', '.tsx', '.mts', '.cts'],
+    transform(code, id) {
+      if (!filter(id))
+        return null
+
+      code = pp(code)
+      return code
     },
   }
 }
-
-
-
-// Deno.test('kitto:scrypt_pp', async () => {
-
-//   const p = await pluginScryptPP().transform({
-//     id: "Counter.scrypt.ts",
-//     map: null,
-//     extname: "ts",
-//     code: /* typescript */ `
-//     @contract
-//     class Counter {
-//       constructor(
-//         public count: bigint
-//       ) {}
-//       inc() {
-//         this.count++
-//         return this
-//       }
-//     }
-//     `
-//   })
-
-
-//   console.log(p.code)
-
-// })

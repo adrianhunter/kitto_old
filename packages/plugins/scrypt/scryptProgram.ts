@@ -7,8 +7,8 @@ import { Transpiler } from 'npm:scrypt-ts-transpiler/dist/transpiler.js'
 import { IndexerWriter } from 'npm:scrypt-ts-transpiler/dist/indexerWriter.js'
 import { tsquery } from 'npm:@phenomnomnominal/tsquery'
 import type { TSConfig } from 'pkg-types'
-
-import { getOutputPath } from '@kitto/plugins/pluginUtils.ts'
+import path from "node:path"
+import utils, { getOutputFilePath } from '../pluginUtils.ts'
 
 export default class ScryptProgram {
   options: ts.CompilerOptions = {}
@@ -18,13 +18,17 @@ export default class ScryptProgram {
   protected files: ts.MapLike<{ version: number; code?: string }> = {}
   cache = new Map<string, { version: number; code?: string }>()
   debug = false
+  info = { foundSomething: false }
   protected services: ts.LanguageService
   // config: ResolvedConfig
   constructor(opts: TSConfig) {
     const rootFileNames: string[] = [
     ]
 
+
     const cwd = Deno.cwd()
+
+    const scryptOutDir = opts.compilerOptions?.outDir || "artifacts"
 
     // this.config = c
 
@@ -35,6 +39,8 @@ export default class ScryptProgram {
       target: ts.ScriptTarget.ESNext,
       module: ts.ModuleKind.ESNext,
       moduleResolution: ts.ModuleResolutionKind.Node16,
+
+      "experimentalDecorators": true,
       skipLibCheck: true,
 
       sourceMap: true,
@@ -49,7 +55,7 @@ export default class ScryptProgram {
     const me = this
     const fileCache = new Map()
 
-    const indexer = new IndexerWriter({ tsconfigDir: cwd, scryptOutDir: opts.compilerOptions?.outDir })
+    const indexer = new IndexerWriter({ tsconfigDir: cwd, scryptOutDir })
 
     const servicesHost: ts.LanguageServiceHost = {
       getScriptFileNames: () => {
@@ -58,7 +64,7 @@ export default class ScryptProgram {
       getScriptVersion: (fileName) => {
         return (
           this.files[fileName]
-                    && this.files[fileName].version.toString()
+          && this.files[fileName].version.toString()
         )
       },
       getScriptSnapshot: (fileName) => {
@@ -93,7 +99,7 @@ export default class ScryptProgram {
       },
       getCustomTransformers(): CustomTransformers {
         return {
-          before: [ctx => new ScryptTranspiler(ctx, me.services, this, indexer, opts)],
+          before: [ctx => new ScryptTranspiler(ctx, me.services, this, indexer, opts, me.info)],
         }
       },
       getCurrentDirectory: () => process.cwd(),
@@ -119,6 +125,7 @@ export default class ScryptProgram {
   }
 
   compile(code: string, id: string) {
+    this.info.foundSomething = false
     if (!this.files[id]) {
       this.files[id] = { version: 0, code }
     }
@@ -126,7 +133,13 @@ export default class ScryptProgram {
       this.files[id].version++
       this.files[id].code = code
     }
-    return this.emitFile(id)
+    const r = this.emitFile(id)
+
+    if (this.info.foundSomething) {
+      return r
+    } else {
+      return null
+    }
   }
 
   emitFile(fileName: string) {
@@ -166,6 +179,8 @@ class ScryptTranspiler implements ts.CustomTransformer {
     public serviceHost: ts.LanguageServiceHost,
     public indexer: IndexerWriter,
     public config: TSConfig,
+    public info: { foundSomething: boolean },
+
     public scryptCache = new Map(),
 
   ) {
@@ -177,9 +192,9 @@ class ScryptTranspiler implements ts.CustomTransformer {
   }
 
   transformSourceFile(node: ts.SourceFile): ts.SourceFile {
-    const tsOutDir = this.config.compilerOptions?.outDir
+    const tsOutDir = this.config.compilerOptions?.outDir || "artifacts"
 
-    const tsRoutDir = this.config.compilerOptions?.rootDir
+    const tsRoutDir = this.config.compilerOptions?.rootDir || Deno.cwd()
 
     const program = this.service.getProgram()
     if (!program)
@@ -197,6 +212,10 @@ class ScryptTranspiler implements ts.CustomTransformer {
     const factory = this.ctx.factory
 
     if (transpiler.scComponents.length) {
+      this.info.foundSomething = true
+      console.log("🚀 ~ file: scryptProgram.ts:218 ~ ScryptTranspiler ~ transformSourceFile ~ this.info:", this.info)
+
+
       // @ts-expect-error xxx
       const contractAndLibs = transpiler.scComponents.map(cDef => transpiler.transformClassDeclaration(cDef).getCode()).join('\n')
       // @ts-expect-error xxx
@@ -205,122 +224,135 @@ class ScryptTranspiler implements ts.CustomTransformer {
       const structs = transpiler.transformTypeLiteralAndInterfaces()
       const result = imports.getCode() + structs.getCode() + contractAndLibs
 
-      const outFileName = getOutputPath(node.fileName.replace('.ts', '.scrypt'), this.config)
+
+      const ext = path.extname(node.fileName)
+      // const outFileName = getOutputFilePath(this.config, node.fileName.replace('.ts', '.scrypt'))
+      const outFileName = utils.getOutputPath(node.fileName.replace(ext, '.scrypt'), this.config)
+      // console.log("🚀 ~ file: scryptProgram.ts:230 ~ ScryptTranspiler ~ transformSourceFile ~ outFileName:", outFileName)
+      // console.log("🚀 ~ file: scryptProgram.ts:230 ~ ScryptTranspiler ~ transformSourceFile ~ outFileName:", outFileName)
+      // console.log("🚀 ~ file: scryptProgram.ts:230 ~ ScryptTranspiler ~ transformSourceFile ~ outFileName:", outFileName)
+      // console.log("🚀 ~ file: scryptProgram.ts:230 ~ ScryptTranspiler ~ transformSourceFile ~ outFileName:", outFileName)
+      // console.log("🚀 ~ file: scryptProgram.ts:228 ~ ScryptTranspiler ~ transformSourceFile ~ outFileName:", outFileName)
+
+
 
       Deno.writeTextFileSync(outFileName, result)
 
       node = ts.visitEachChild(node, (node) => {
         if (ts.isClassDeclaration(node)) {
           const members = node.members.map((a) => {
-            if (ts.isMethodDeclaration(a)) {
-              // @ts-expect-error asd
-              a.modifiers = a.modifiers?.filter((a) => {
-                return a.kind !== ts.SyntaxKind.Decorator
-              })
-            }
-            else if (ts.isPropertyDeclaration(a)) {
-              // @ts-expect-error asd
-              a.modifiers = a.modifiers?.filter((a) => {
-                return a.kind !== ts.SyntaxKind.Decorator
-              })
-            }
-            else if (ts.isConstructorDeclaration(a)) {
-              if (!a.body)
-                return a
-              const body = this.ctx.factory.updateBlock(a.body, a.body.statements.slice(1))
-              return this.ctx.factory.updateConstructorDeclaration(a, a.modifiers, a.parameters, body)
-            }
+            // if (ts.isMethodDeclaration(a)) {
+            //   // @ts-expect-error asd
+            //   a.modifiers = a.modifiers?.filter((a) => {
+            //     return a.kind !== ts.SyntaxKind.Decorator
+            //   })
+            // }
+            // else if (ts.isPropertyDeclaration(a)) {
+            //   // @ts-expect-error asd
+            //   a.modifiers = a.modifiers?.filter((a) => {
+            //     return a.kind !== ts.SyntaxKind.Decorator
+            //   })
+            // }
+            // else if (ts.isConstructorDeclaration(a)) {
+            //   if (!a.body)
+            //     return a
+            //   const body = this.ctx.factory.updateBlock(a.body, a.body.statements.slice(1))
+            //   return this.ctx.factory.updateConstructorDeclaration(a, a.modifiers, a.parameters, body)
+            // }
             return a
           })
 
-          const newClass = this.ctx.factory.updateClassDeclaration(node, node.modifiers, node.name, node.typeParameters, undefined, [
+          node = this.ctx.factory.updateClassDeclaration(node, node.modifiers, node.name, node.typeParameters, node.heritageClauses, [
             ...members,
 
-            factory.createPropertyDeclaration(
-              [factory.createToken(ts.SyntaxKind.StaticKeyword)],
-              factory.createIdentifier('__artifact'),
-              undefined,
-              undefined,
-              factory.createCallExpression(
-                factory.createPropertyAccessExpression(
-                  factory.createIdentifier('JSON'),
-                  factory.createIdentifier('parse'),
-                ),
-                undefined,
-                [
-                  factory.createNoSubstitutionTemplateLiteral(
-                    '___ARTIFACT___',
+            // factory.createPropertyDeclaration(
+            //   [factory.createToken(ts.SyntaxKind.StaticKeyword)],
+            //   factory.createIdentifier('__artifact'),
+            //   undefined,
+            //   undefined,
+            //   factory.createCallExpression(
+            //     factory.createPropertyAccessExpression(
+            //       factory.createIdentifier('JSON'),
+            //       factory.createIdentifier('parse'),
+            //     ),
+            //     undefined,
+            //     [
+            //       factory.createNoSubstitutionTemplateLiteral(
+            //         '___ARTIFACT___',
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            factory.createClassStaticBlockDeclaration(factory.createBlock(
+              [
+                factory.createExpressionStatement(factory.createBinaryExpression(
+                  factory.createPropertyAccessExpression(
+                    factory.createThis(),
+                    factory.createIdentifier('__artifact'),
                   ),
-                ],
-              ),
-            ),
-            // factory.createClassStaticBlockDeclaration(factory.createBlock(
-            //   [
-            //     factory.createExpressionStatement(factory.createBinaryExpression(
-            //       factory.createPropertyAccessExpression(
-            //         factory.createThis(),
-            //         factory.createIdentifier('__artifact'),
-            //       ),
-            //       factory.createToken(ts.SyntaxKind.EqualsToken),
-            //       factory.createCallExpression(
-            //         factory.createPropertyAccessExpression(
-            //           factory.createIdentifier('JSON'),
-            //           factory.createIdentifier('parse'),
-            //         ),
-            //         undefined,
-            //         [factory.createNoSubstitutionTemplateLiteral(
-            //           // JSON.stringify(r.artifact),
-            //           "___ARTIFACT___"
+                  factory.createToken(ts.SyntaxKind.EqualsToken),
+                  factory.createCallExpression(
+                    factory.createPropertyAccessExpression(
+                      factory.createIdentifier('JSON'),
+                      factory.createIdentifier('parse'),
+                    ),
+                    undefined,
+                    [factory.createNoSubstitutionTemplateLiteral(
+                      // JSON.stringify(r.artifact),
+                      "___ARTIFACT___"
 
-            //         )],
-            //       ),
-            //     )),
-            //     // factory.createExpressionStatement(factory.createCallExpression(
-            //     //   factory.createPropertyAccessExpression(
-            //     //     factory.createThis(),
-            //     //     factory.createIdentifier('loadArtifact'),
-            //     //   ),
-            //     //   undefined,
-            //     //   [factory.createPropertyAccessExpression(
-            //     //     factory.createThis(),
-            //     //     factory.createIdentifier('__artifact'),
-            //     //   )],
-            //     // )),
-            //   ],
-            //   true,
-            // )),
+                    )],
+                  ),
+                )),
+                factory.createExpressionStatement(factory.createCallExpression(
+                  factory.createPropertyAccessExpression(
+                    factory.createThis(),
+                    factory.createIdentifier('loadArtifact'),
+                  ),
+                  undefined,
+                  [factory.createPropertyAccessExpression(
+                    factory.createThis(),
+                    factory.createIdentifier('__artifact'),
+                  )],
+                )),
+              ],
+              true,
+            )),
 
           ])
 
-          const name = newClass.name?.getText() || 'xxx'
+          // const name = newClass.name?.getText() || 'xxx'
 
-          const modifiers = newClass.modifiers?.filter((a) => {
-            return a.kind !== ts.SyntaxKind.Decorator && a.kind !== ts.SyntaxKind.ExportKeyword
-          })
+          // const modifiers = newClass.modifiers?.filter((a) => {
+          //   return a.kind !== ts.SyntaxKind.Decorator && a.kind !== ts.SyntaxKind.ExportKeyword
+          // })
 
-          node = factory.createVariableStatement(
-            [factory.createToken(ts.SyntaxKind.ExportKeyword)],
-            factory.createVariableDeclarationList(
-              [factory.createVariableDeclaration(
-                factory.createIdentifier(name),
-                undefined,
-                undefined,
-                factory.createCallExpression(
-                  factory.createIdentifier('contract'),
-                  undefined,
-                  [
-                    factory.createClassExpression(modifiers, newClass.name, newClass.typeParameters, newClass.heritageClauses, newClass.members),
-                  ],
-                ),
-              )],
-              ts.NodeFlags.Const,
-            ),
-          )
+          // node = factory.createVariableStatement(
+          //   [factory.createToken(ts.SyntaxKind.ExportKeyword)],
+          //   factory.createVariableDeclarationList(
+          //     [factory.createVariableDeclaration(
+          //       factory.createIdentifier(name),
+          //       undefined,
+          //       undefined,
+          //       factory.createCallExpression(
+          //         factory.createIdentifier('contract'),
+          //         undefined,
+          //         [
+          //           factory.createClassExpression(modifiers, newClass.name, newClass.typeParameters, newClass.heritageClauses, newClass.members),
+          //         ],
+          //       ),
+          //     )],
+          //     ts.NodeFlags.Const,
+          //   ),
+          // )
         }
         return node
       }, this.ctx)
-    }
 
+
+    }
     return node
+
+
   }
 }

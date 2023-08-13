@@ -5,7 +5,6 @@ import type { PackageJson, TSConfig } from 'pkg-types'
 import { definePackageJSON, defineTSConfig, findWorkspaceDir, writePackageJSON, writeTSConfig } from 'pkg-types'
 import civet from '@danielx/civet'
 
-// @ts-expect-error asd
 import * as jsonc from 'https://deno.land/std@0.197.0/jsonc/parse.ts'
 
 // path from node:path
@@ -146,11 +145,11 @@ export class Workspace {
     await Promise.all(
       [
         childs,
-//         fs.writeFile(`${this.root}/pnpm-workspace.yaml`, `packages:
-//   - ${this.json.packages || 'packages/*'}
+        //         fs.writeFile(`${this.root}/pnpm-workspace.yaml`, `packages:
+        //   - ${this.json.packages || 'packages/*'}
 
-// shared-workspace-lockfile: true
-//                       `),
+        // shared-workspace-lockfile: true
+        //                       `),
 
         writeTSConfig(`${this.root}/tsconfig.json`, rootTsConfig),
         fs.writeFile(this.wsFile, JSON.stringify(this.json, null, 2)),
@@ -446,6 +445,5 @@ export async function createViteDefaultConfig(ws?: Workspace) {
 // import * as x from ""
 
 export async function installPackage() {
-
 
 }

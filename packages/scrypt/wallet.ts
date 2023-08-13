@@ -1,10 +1,12 @@
 import type { AddressOption, AddressesOption, Network, Provider, SignTransactionOptions, SignatureRequest, SignatureResponse, UTXO, UtxoQueryOptions } from 'scrypt-ts'
-import { Signer, parseAddresses } from 'scrypt-ts'
+import { Signer, bsv, parseAddresses } from 'scrypt-ts'
+import { signTx } from 'scryptlib'
 
-// import { AddressesOption, AddressOption, Network, UTXO } from "../types";
-import { bsv, signTx } from 'scryptlib'
+// import * as bsv from './bsv.ts'
 
-import WhatsonchainProvider from '@kitto/scrypt/provider.ts'
+// import { bsv } from 'https://esm.sh/scryptlib@2.1.24'
+
+import WhatsonchainProvider from './provider.ts'
 
 const DEFAULT_SIGHASH_TYPE = bsv.crypto.Signature.ALL
 
@@ -330,7 +332,6 @@ class CacheableUtxoManager {
           }))
           .change(this.address) // here generates a new available utxo for address
 
-      // @ts-expect-error asd
       const txId = (await this.signer.signAndsendTransaction(splitTx)).id // sendTx(splitTx);
 
       // update the available utxos, add the new created on as the change

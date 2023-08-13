@@ -1,19 +1,29 @@
-import type { Plugin } from './types.d.ts'
-import { declarationTransformer, ReflectionTransformer } from "@deepkit/type-compiler"
+import { ReflectionTransformer, declarationTransformer } from '@deepkit/type-compiler'
 import ts from 'typescript'
-let loaded = false;
+import { createFilter } from 'npm:@rollup/pluginutils'
+import type { Plugin } from 'vite'
 
-//@ts-ignore asd
+let loaded = false
+
+import type { TSConfig } from 'pkg-types'
+
+
+interface Opts {
+  tsconfig: TSConfig
+}
+
+// @ts-expect-error asd
 const transformer: ts.CustomTransformerFactory = function deepkitTransformer(context) {
-  if (!loaded) {
-      loaded = true;
-  }
-  //@ts-ignore asd
-  return new ReflectionTransformer(context).withReflectionMode("always");
-};
+  if (!loaded)
+    loaded = true
 
+  // @ts-expect-error asd
+  return new ReflectionTransformer(context).withReflectionMode('always')
+}
 
 export default function pluginDeepkit(): Plugin {
+  const filter = createFilter(['**/*.scrypt.ts', '**/*.scrypt.tsx'])
+
   const transformers = {
     before: [transformer],
     after: [declarationTransformer],
@@ -21,27 +31,32 @@ export default function pluginDeepkit(): Plugin {
   return {
     name: 'kitto:deepkit',
     enforce: 'pre',
-    extnames: [".ts", ".tsx", ".mts", ".cts"],
+    // extnames: ['.ts', '.tsx', '.mts', '.cts'],
     // deno-lint-ignore require-await
-    async transform(opts) {
-      const transformed = ts.transpileModule(opts.code, {
+    async transform(code: string, id: string) {
+      if (!filter(id))
+        return null
+
+      const transformed = ts.transpileModule(code, {
         compilerOptions: {
           target: ts.ScriptTarget.ESNext,
           module: ts.ModuleKind.ESNext,
-          // experimentalDecorators: true,
-          "allowArbitraryExtensions": true,
-          "allowImportingTsExtensions": true,
-          "moduleResolution": ts.ModuleResolutionKind.Bundler
+          experimentalDecorators: true,
+          allowArbitraryExtensions: true,
+          allowImportingTsExtensions: true,
+          moduleResolution: ts.ModuleResolutionKind.Bundler,
         },
         // opts.id,
-        fileName: opts.id,
-        //@ts-ignore asd
+        fileName: id,
+        // @ts-expect-error asd
         transformers,
       })
 
-      opts.code = transformed.outputText
-      opts.extname = ".js"
-      return opts
+      code = transformed.outputText
+      // opts.extname = '.js'
+      return {
+        code,
+      }
     },
   }
 }

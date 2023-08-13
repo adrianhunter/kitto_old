@@ -1,6 +1,5 @@
 // import { bsv } from "scrypt-ts";
 
-console.log(bsv)
 // import * as dotenv from 'dotenv'
 // import * as fs from 'fs'
 

@@ -25,6 +25,7 @@ packages/vite-plugin/vite-project
 packages/vscode-ext
 trash
 
+packages/lsp/Civet
 
 
 packages/web-worker-lsp

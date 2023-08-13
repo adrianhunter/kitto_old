@@ -1,93 +1,84 @@
-import type { Plugin, Config} from './types.d.ts'
-import { ScryptProgram } from './scrypt/scryptProgram.ts'
+// import type { Config, Plugin } from './types.d.ts'
+import type { Plugin, ResolvedConfig } from 'vite'
+import { createFilter } from 'npm:@rollup/pluginutils'
+import ScryptProgram from './scrypt/scryptProgram.ts'
+import util, { getOutputFilePath } from "./pluginUtils.ts"
+import { readTSConfig } from "npm:pkg-types"
 import { compileContract } from './scrypt/scryptlib/utils.ts'
-import { TSConfig } from 'pkg-types'
-import { getOutputPath } from '@kitto/plugins/pluginUtils.ts'
+import path from "node:path"
+import type { TSConfig } from 'pkg-types'
 
-// import {transform as pp} from "./scrypt/preprocess.ts"
 
+interface Opts {
+  tsconfig: TSConfig
+}
 export default function pluginScrypt(): Plugin {
-  const cwd = Deno.cwd()
-
-  let config: Config
-
+  let config: ResolvedConfig
   let program: ScryptProgram
+  let autoImport: any
+  let tsconfig: TSConfig
 
+  const filter = createFilter(['**/*.scrypt.ts', '**/*.scrypt.tsx'])
   return {
     name: 'kitto:scrypt',
     enforce: 'pre',
-    extnames: [".ts", ".tsx", ".mts", ".cts"],
-
+    // extnames: ['.ts', '.tsx', '.mts', '.cts'],
+    // deno-lint-ignore require-await
     async configResolved(c) {
       config = c
-
-      program  = new ScryptProgram(config.tsconfig)
+      autoImport = c.plugins.find(a => a.name === 'unplugin-auto-import') as Plugin
+      tsconfig = await readTSConfig()
+      program = new ScryptProgram(tsconfig)
     },
-    // deno-lint-ignore require-await
-    async transform(opts) {
-      const a = opts.id.includes(".scrypt.")
-      const b = opts.params.has("scrypt")
-      if (!a && !b) {
-        return opts
+    async transform(code: string, id: string, opts) {
+      console.log("🚀 ~ file: pluginScrypt.ts:34 ~ transform ~ id:", id)
+
+      if (!filter(id))
+        return null
+
+
+
+
+
+      const ext = path.extname(id)
+
+      if (autoImport) {
+        const r = await autoImport.transform(code, id, opts)
+        if (r)
+          code = r.code
       }
+
+      // code = await autoImport.transform(code, id)
+
+      // const a = opts.id.includes('.scrypt.')
+      // const b = opts.params.has('scrypt')
+      // if (!a && !b)
+      //   return opts
       try {
-        // const scryptCode = pp(opts.code)
+        const r = program.compile(code, id)
 
-        const r = program.compile(opts.code, opts.id)
+        if (r) {
+          console.log('🚀 ~ file: pluginScrypt.ts:26 ~ REULT _____ transform ~ r:', r)
 
+          const scryptFile = util.getOutputPath(id.replace(ext, '.scrypt'), tsconfig)
+          const scryptCode = await Deno.readTextFile(scryptFile)
+          const rr = await compileContract({ code: scryptCode, id: scryptFile }, { artifact: true, out: `${Deno.cwd()}/artifacts` })
+          code = r.outputFiles[1].text
+          // extname = '.js'
+          code = code.replace('___ARTIFACT___', JSON.stringify(rr.toArtifact()))
+        } else {
+          return
+        }
 
-        
-
-        const scryptFile = getOutputPath(opts.id.replace(".ts", ".scrypt"), config.tsconfig)
-
-
-        const scryptCode = await Deno.readTextFile(scryptFile)
-
-        const rr = await compileContract({code: scryptCode, id: scryptFile}, {artifact: true, out: Deno.cwd() + "/artifacts"})
-        
-        opts.code = r.outputFiles[1].text
-
-
-       opts.code  = opts.code.replace("___ARTIFACT___", JSON.stringify(rr.toArtifact()))
-
-        
       }
       catch (e) {
         console.error(e)
         throw e
       }
+      return {
 
-      return opts
+        code,
+      }
     },
   }
 }
-
-const cwd = Deno.cwd()
-
-
-// function getScryptFile(fileName: string, config: TSConfig) {
-
-
-//   const wow = fileName.replace(cwd +`/src`,  cwd + "/artifacts")
-//   // const dirname = path.dirname(wow)
-
-//   // Deno.mkdirSync(dirname, {recursive: true})
-
-
-//   // Deno.writeTextFileSync(wow, content)
-
-//   return wow + ".scrypt"
-//   // const tempDir = os.tmpdir()
-//   // const tempFilename = 'tmp.scrypt'
-//   // const tempFilePath = path.join(tempDir, tempFilename)
-
-//   // try {
-//   //   fss.writeFileSync(tempFilePath, content)
-
-//   //   return tempFilePath
-//   // }
-//   // catch (err) {
-//   //   console.error('Error creating temporary file:', err)
-//   //   throw err
-//   // }
-// }

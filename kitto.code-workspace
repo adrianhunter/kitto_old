@@ -1,13 +1,28 @@
 {
 
 
+
+
   "settings": {
 
+    "editor.formatOnSave": true,
 
-    "deno.enable": true,
+    "files.associations": {
+
+      // "*.civet": "typescript"
+    },
+
+
+    "deno.enable": false,
     "deno.unstable": true,
+
+    
+    "deno.suggest.imports.autoDiscover": true,
     // "deno.lint": false,
-    "deno.config": "/Users/X/Documents/GitHub/kitto/deno.jsonc"
+    "deno.config": "/Users/X/Documents/GitHub/kitto/deno.jsonc",
+    "deno.suggest.imports.hosts": {
+      "http://localhost:8000/": true
+    }
   },
 
           "folders": [
@@ -16,10 +31,19 @@
       {
         "path": "packages/core"
       },
+
+      {
+        "path": "packages/ultra"
+      },
+      // {
+      //   "path": "packages/bvm"
+      // },
       {
         "path": "packages/app"
       },
-
+      {
+        "path": "packages/cli"
+      },
       {
         "path": "packages/plugins"
       },

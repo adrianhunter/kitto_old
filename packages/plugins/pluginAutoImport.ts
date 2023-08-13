@@ -1,39 +1,14 @@
-import { createUnimport } from 'npm:unimport'
-import type { Plugin } from './types.d.ts'
 
-export default function pluginAutoImport(): Plugin {
-  const config = {
-    imports: Object.keys(autoImports).map((a) => {
-      return {
-        from: 'scrypt-ts',
-        name: a,
-      }
-    }),
-  }
-  const stuff = createUnimport(config)
 
-  return {
-    enforce: 'pre',
-    name: 'kitto:ts',
-    extnames: ['.ts', '.tsx', '.mts', '.cts'],
-    async configResolved() {
-      const autoTypes = await stuff.generateTypeDeclarations({})
-      await Deno.writeTextFile(`${Deno.cwd()}/autoimport.d.ts`, autoTypes)
-    },
-    async transform(opts) {
-      const r = await stuff.injectImports(opts.code)
-      opts.code = r.code
-      return opts
-    },
-  }
-}
+import AutoImport from 'npm:unplugin-auto-import/vite'
+
+import type { Plugin } from 'vite'
 
 const autoImports = {
   prop: true,
   method: true,
   SmartContract: true,
   SmartContractLib: true,
-  bsv: true,
   toHex: true,
   buildPublicKeyHashScript: true,
   buildOpreturnScript: true,
@@ -118,9 +93,110 @@ const autoImports = {
 }
 
 const autoImportTypes = {
-  PubKeyHash: true,
-  PubKey: true,
+  // PubKeyHash: true,
+  // PubKey: true,
   ByteString: true,
-  Sig: true,
-  SmartContract: true,
+  // Sig: true,
+  // SmartContract: true,
+}
+
+export default function pluginAutoImport(): Plugin[] {
+  return [
+    // AutoImport({
+
+    //   // dts: 'auto-imports-global.d.ts',
+
+    //   // resolvers: [
+
+    //   //   [
+    //   //     // {
+    //   //     //   type: 'directive',
+    //   //     //   resolve(a) {
+    //   //     //     console.log('REXXXXSOLVEdirective', a, ...arguments)
+    //   //     //   },
+    //   //     // },
+
+    //   //     {
+    //   //       type: 'component',
+    //   //       resolve(a) {
+    //   //         if (a === 'log') {
+    //   //           return {
+
+    //   //             as: 'log',
+    //   //             name: 'default',
+
+    //   //             from: 'consola',
+
+    //   //           }
+    //   //         }
+
+    //   //         // console.log('REXXXXSOLVE', a, ...arguments)
+    //   //       },
+    //   //     }],
+    //   // ],
+    //   imports: [
+
+    //     // {
+    //     //   '/Users/X/Documents/GitHub/kitto/packages/app/api.ts': [
+    //     //     'log',
+    //     //     'info',
+    //     //     'warn',
+    //     //     'error',
+
+    //     //   ],
+    //     // },
+    //     // {
+    //     //   mocha: [
+    //     //     'it',
+    //     //     'describe',
+    //     //   ],
+    //     // },
+    //     // {
+    //     //   chai: [
+    //     //     'assert',
+    //     //   ],
+
+    //     // },
+    //     // {
+    //     //   from: 'scrypt-ts',
+    //     //   imports: Object.keys(autoImportTypes),
+    //     //   type: true,
+
+    //     // },
+    //   ],
+    // }),
+    AutoImport({
+      dts: 'auto-imports-scrypt.d.ts',
+      include: [
+        /\.[tj]sx?$/, // .ts, .tsx, .js, .jsx
+        /\.vue$/, /\.vue\?vue/, // .vue
+        /\.md$/, // .md
+      ],
+
+      "exclude": [
+        "bsv"
+      ],
+
+      // dts: true,
+      // include: ['*.scrypt.ts'],
+      defaultExportByFilename: false,
+      injectAtEnd: true,
+      imports: [
+
+        "react",
+
+        {
+          'scrypt-ts': Object.keys(autoImports),
+
+        },
+        {
+          from: 'scrypt-ts',
+          imports: Object.keys(autoImportTypes),
+          type: true,
+
+        },
+
+      ],
+    }),
+  ]
 }

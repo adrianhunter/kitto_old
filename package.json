@@ -13,11 +13,10 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@antfu/eslint-config": "^0.40.2",
-    "@typescript-eslint/parser": "^6.3.0",
-    "eslint": "^8.47.0",
-    "eslint-plugin-optimal-modules": "^1.0.2",
-    "scrypt-ts": "^1.3.1",
-    "scrypt-ts-lib": "^0.1.20"
+    "scrypt-ts": "^1.3.1"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "typescript": "^5.1.6"
   }
 }

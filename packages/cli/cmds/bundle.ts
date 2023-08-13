@@ -19,7 +19,7 @@ export default defineCommand({
     await Promise.all([
       // exec(`tsc -b${watchCmd}`),
       exec('pnpm run build'),
-      // exec(`deno run -A npm:vite build${watchCmd}`),
+      // exec(`deno run -A vite build${watchCmd}`),
 
     ])
   },

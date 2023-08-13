@@ -1,0 +1,312 @@
+{
+  "plugins": [
+    {
+      "name": "vite:optimized-deps"
+    },
+    {
+      "name": "vite:watch-package-data"
+    },
+    {
+      "name": "vite:pre-alias"
+    },
+    {
+      "name": "alias"
+    },
+    {
+      "name": "kitto:scrypt_pp",
+      "enforce": "pre"
+    },
+    {
+      "name": "kitto:scrypt",
+      "enforce": "pre"
+    },
+    {
+      "name": "kitto:deepkit",
+      "enforce": "pre"
+    },
+    {
+      "enforce": "pre",
+      "name": "kitto:ts"
+    },
+    {
+      "name": "vite:resolve"
+    },
+    {
+      "name": "vite:html-inline-proxy"
+    },
+    {
+      "name": "vite:css"
+    },
+    {
+      "name": "vite:json"
+    },
+    {
+      "name": "vite:wasm-helper"
+    },
+    {
+      "name": "vite:worker"
+    },
+    {
+      "name": "vite:asset"
+    },
+    {
+      "name": "vite:wasm-fallback"
+    },
+    {
+      "name": "vite:define"
+    },
+    {
+      "name": "vite:css-post"
+    },
+    {
+      "name": "vite:worker-import-meta-url"
+    },
+    {
+      "name": "vite:asset-import-meta-url"
+    },
+    {
+      "name": "vite:dynamic-import-vars"
+    },
+    {
+      "name": "vite:import-glob"
+    },
+    {
+      "name": "vite:client-inject"
+    },
+    {
+      "name": "vite:import-analysis"
+    }
+  ],
+  "esbuild": false,
+  "build": {
+    "target": "esnext",
+    "cssTarget": "esnext",
+    "outDir": "dist",
+    "assetsDir": "assets",
+    "assetsInlineLimit": 4096,
+    "cssCodeSplit": true,
+    "sourcemap": false,
+    "rollupOptions": {
+      "output": {
+        "format": "esm"
+      }
+    },
+    "minify": "esbuild",
+    "terserOptions": {},
+    "write": true,
+    "emptyOutDir": null,
+    "copyPublicDir": true,
+    "manifest": false,
+    "lib": false,
+    "ssr": false,
+    "ssrManifest": false,
+    "ssrEmitAssets": false,
+    "reportCompressedSize": true,
+    "chunkSizeWarningLimit": 500,
+    "watch": null,
+    "modulePreload": false,
+    "commonjsOptions": {
+      "include": [
+        {}
+      ],
+      "extensions": [
+        ".js",
+        ".cjs"
+      ]
+    },
+    "dynamicImportVarsOptions": {
+      "warnOnError": true,
+      "exclude": [
+        {}
+      ]
+    },
+    "cssMinify": true
+  },
+  "configFileDependencies": [],
+  "inlineConfig": {
+    "plugins": [
+      [
+        {
+          "name": "kitto:scrypt_pp",
+          "enforce": "pre"
+        },
+        {
+          "name": "kitto:scrypt",
+          "enforce": "pre"
+        },
+        {
+          "name": "kitto:deepkit",
+          "enforce": "pre"
+        },
+        {
+          "enforce": "pre",
+          "name": "kitto:ts"
+        }
+      ]
+    ],
+    "esbuild": false,
+    "build": {
+      "target": "esnext",
+      "modulePreload": false,
+      "rollupOptions": {
+        "output": {
+          "format": "esm"
+        }
+      }
+    }
+  },
+  "root": "/Users/X/Documents/GitHub/kitto/packages/app",
+  "base": "/",
+  "rawBase": "/",
+  "resolve": {
+    "mainFields": [
+      "module",
+      "jsnext:main",
+      "jsnext"
+    ],
+    "browserField": true,
+    "conditions": [],
+    "extensions": [
+      ".mjs",
+      ".js",
+      ".mts",
+      ".ts",
+      ".jsx",
+      ".tsx",
+      ".json"
+    ],
+    "dedupe": [],
+    "preserveSymlinks": false,
+    "alias": [
+      {
+        "find": {},
+        "replacement": "/@fs/Users/X/Documents/GitHub/kitto/node_modules/.deno/vite@4.4.9/node_modules/vite/dist/client/env.mjs"
+      },
+      {
+        "find": {},
+        "replacement": "/@fs/Users/X/Documents/GitHub/kitto/node_modules/.deno/vite@4.4.9/node_modules/vite/dist/client/client.mjs"
+      }
+    ]
+  },
+  "publicDir": "/Users/X/Documents/GitHub/kitto/packages/app/public",
+  "cacheDir": "/Users/X/Documents/GitHub/kitto/node_modules/.vite",
+  "command": "serve",
+  "mode": "development",
+  "ssr": {
+    "format": "esm",
+    "target": "node",
+    "optimizeDeps": {
+      "disabled": true,
+      "esbuildOptions": {
+        "preserveSymlinks": false
+      }
+    }
+  },
+  "isWorker": false,
+  "mainConfig": null,
+  "isProduction": false,
+  "server": {
+    "preTransformRequests": true,
+    "middlewareMode": false,
+    "fs": {
+      "strict": true,
+      "allow": [
+        "/Users/X/Documents/GitHub/kitto"
+      ],
+      "deny": [
+        ".env",
+        ".env.*",
+        "*.{crt,pem}"
+      ]
+    }
+  },
+  "preview": {},
+  "envDir": "/Users/X/Documents/GitHub/kitto/packages/app",
+  "env": {
+    "BASE_URL": "/",
+    "MODE": "development",
+    "DEV": true,
+    "PROD": false
+  },
+  "logger": {
+    "hasWarned": false
+  },
+  "packageCache": {},
+  "optimizeDeps": {
+    "disabled": "build",
+    "esbuildOptions": {
+      "preserveSymlinks": false
+    }
+  },
+  "worker": {
+    "format": "iife",
+    "plugins": [
+      {
+        "name": "vite:optimized-deps"
+      },
+      {
+        "name": "vite:watch-package-data"
+      },
+      {
+        "name": "vite:pre-alias"
+      },
+      {
+        "name": "alias"
+      },
+      {
+        "name": "vite:resolve"
+      },
+      {
+        "name": "vite:html-inline-proxy"
+      },
+      {
+        "name": "vite:css"
+      },
+      {
+        "name": "vite:json"
+      },
+      {
+        "name": "vite:wasm-helper"
+      },
+      {
+        "name": "vite:worker"
+      },
+      {
+        "name": "vite:asset"
+      },
+      {
+        "name": "vite:wasm-fallback"
+      },
+      {
+        "name": "vite:define"
+      },
+      {
+        "name": "vite:css-post"
+      },
+      {
+        "name": "vite:worker-import-meta-url"
+      },
+      {
+        "name": "vite:asset-import-meta-url"
+      },
+      {
+        "name": "vite:dynamic-import-vars"
+      },
+      {
+        "name": "vite:import-glob"
+      },
+      {
+        "name": "vite:client-inject"
+      },
+      {
+        "name": "vite:import-analysis"
+      }
+    ],
+    "rollupOptions": {}
+  },
+  "appType": "spa",
+  "experimental": {
+    "importGlobRestoreExtension": false,
+    "hmrPartialAccept": false
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "tasks": {
+    "build": "deno run -A scripts/build_npm.ts 0.1.0",
+    "test": "cd test && deno test --parallel"
+  },
+  "importMap": "./importMap.json",
+  "lock": false,
+  "compilerOptions": {
+    "strict": false,
+    "allowJs": true
+  }
+}

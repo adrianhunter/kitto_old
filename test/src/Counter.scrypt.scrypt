@@ -1,0 +1,19 @@
+
+contract Counter {
+  @state int count;
+  public function inc_onchain(SigHashPreimage __scrypt_ts_txPreimage, int __scrypt_ts_changeAmount, Ripemd160 __scrypt_ts_changeAddress) {
+    require(Tx.checkPreimageSigHashType(__scrypt_ts_txPreimage, SigHashType(b'41')));
+    this.inc();
+    int amount = SigHash.value(__scrypt_ts_txPreimage);
+    auto outputs =  + (__scrypt_ts_changeAmount > 0 ? Utils.buildOutput(Utils.buildPublicKeyHashScript(__scrypt_ts_changeAddress), __scrypt_ts_changeAmount) : b'');
+    require(SigHash.hashOutputs(__scrypt_ts_txPreimage) == );
+  }
+  function inc() : bool {
+    this.count++;
+    return true;
+  }
+    function buildStateOutput(int amount): bytes {
+      bytes script = this.getStateScript();
+      return Utils.buildOutput(script, amount);
+    }
+}

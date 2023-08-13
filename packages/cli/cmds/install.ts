@@ -26,7 +26,7 @@ export default defineCommand({
 
       // exec(`tsc -b${watchCmd}`),
       exec(`pnpm install --ignore-scripts`),
-      // exec(`deno run -A npm:vite build${watchCmd}`),
+      // exec(`deno run -A vite build${watchCmd}`),
 
     ])
   },

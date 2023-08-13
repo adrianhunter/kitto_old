@@ -1,10 +1,22 @@
 {
   "tasks": {
+    "dev": "deno run -A --watch packages/plugins/server.ts",
+    "build": "deno run --reload=http://localhost:1337/ -A scripts/build_npm.ts 0.1.0",
+    "test:bvm": "deno test --no-check -A --reload=http://localhost:1337 mod.ts",
+    "test:contract": "deno test --no-check -A --reload=http://localhost:1337 test/contract.test.ts",
+    "run:contract": "deno run -A --reload=http://localhost:1337 test/run.test.ts",
+    "build:contract": "deno run -A --reload=http://localhost:1337 http://localhost:1337/test/src/P2pkh.scrypt.ts",
 
-    "serve": "deno run -A --watch packages/plugins/server.ts",
+
     "test": "deno test --no-check -A --watch --reload=http://localhost:1337 test/plugins.test.ts"
     
 
+  },
+
+  "lock": false,
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
   },
   "importMap": "./import_map.json"
 }

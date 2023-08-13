@@ -1,0 +1,7 @@
+{
+  "target": 99,
+  "jsx": "react-jsxdev",
+  "outDir": "dist",
+  "module": 99,
+  "jsxImportSource": "preact"
+}

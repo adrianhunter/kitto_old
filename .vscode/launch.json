@@ -1,0 +1,26 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "request": "launch",
+      "name": "Launch Program",
+      "type": "node",
+      "program": "http://localhost:1337/test/src/Counter.scrypt.ts",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "/Users/X/.deno/bin/deno",
+      "runtimeArgs": [
+        "run",
+        "--unstable",
+        "--config",
+        "/Users/X/Documents/GitHub/kitto/deno.jsonc",
+        "--inspect-wait",
+        "--allow-all",
+        "--reload=http://localhost:1337"
+      ],
+      "attachSimplePort": 9229
+    }
+  ]
+}
