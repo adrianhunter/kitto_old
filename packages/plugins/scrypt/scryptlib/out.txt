@@ -1,0 +1,1 @@
+Hex written to `/Users/X/Documents/GitHub/kitto/artifacts/ackermann.scrypt-128aa2ac96/stdin_hex.txt`
